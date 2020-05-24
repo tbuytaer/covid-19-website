@@ -55,13 +55,15 @@ export default {
     polygonSeries.heatRules.push({
       "property": "fill",
       "target": polygonTemplate,
-      "min": am4core.color("#0000FF"),
-      "max": am4core.color("#FF0000")
+      "min": am4core.color("#00FF00"),
+      "max": am4core.color("#FF0000"),
+      "minvalue": 0,
+      "maxValue": 2,
     });
 
     // Change data for some countries from the default
     axios
-      .get('http://localhost:8080/countries.json')
+      .get('./data/worldR0.json')
       .then(response => (polygonSeries.data = response.data))
     
 

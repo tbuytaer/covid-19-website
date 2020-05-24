@@ -1,4 +1,13 @@
-# covid-19
+# Graphs to track the spread of COVID-19
+
+## Updating data files
+Export new CSV files from **Mathematica** and place them in **/rawdata/**.
+
+Generate the JSON files.
+```
+php generate-json.php 
+```
+These will be placed in **/public/data/** and in **/dist/data/**
 
 ## Project setup
 ```
