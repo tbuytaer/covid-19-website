@@ -7,6 +7,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4maps from "@amcharts/amcharts4/maps";
 import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow";
@@ -15,10 +17,16 @@ import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 am4core.useTheme(am4themes_animated);
 
+
 export default {
   name: 'WorldMap',
   props: {
     msg: String
+  },
+  data: function() {
+    return {
+      currentJsonFile: '',
+    }
   },
   mounted() {
     let map = am4core.create(this.$refs.worldmap, am4maps.MapChart);
@@ -31,14 +39,35 @@ export default {
     polygonSeries.useGeodata = true;
     map.series.push(polygonSeries);
 
+    // Hide Antarctica
+    polygonSeries.exclude = ["AQ"];
+
     let polygonTemplate = polygonSeries.mapPolygons.template;
     // Show country name when hovering
-    polygonTemplate.tooltipText = "{name}";
+    polygonTemplate.tooltipText = "{name}: {value}";
     // Color of countries
-    polygonTemplate.fill = am4core.color("#74B266");
+    //polygonTemplate.fill = am4core.color("#74B266");
     // Create hover state and set alternative fill color
     let hs = polygonTemplate.states.create("hover");
-    hs.properties.fill = am4core.color("#367B25");
+    hs.properties.fill = am4core.color("#7777DD");
+
+    // Add heat rule
+    polygonSeries.heatRules.push({
+      "property": "fill",
+      "target": polygonTemplate,
+      "min": am4core.color("#0000FF"),
+      "max": am4core.color("#FF0000")
+    });
+
+    // Change data for some countries from the default
+    axios
+      .get('http://localhost:8080/countries.json')
+      .then(response => (polygonSeries.data = response.data))
+    
+
+
+
+
 
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     chart.paddingRight = 20;
@@ -70,6 +99,9 @@ export default {
     chart.scrollbarX = scrollbarX;
 
     this.chart = chart;
+
+
+
   },
   beforeDestroy() {
     if (this.chart) {
