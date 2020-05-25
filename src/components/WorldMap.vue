@@ -3,10 +3,10 @@
     <div class="row">
       <div class="col-md-2">
         <ul class="nav nav-pills flex-column">
-          <li><a href="#" class="nav-link active" @click="worldRe">Re</a></li>            
-          <li><a href="#" class="nav-link" @click="worldActive">Active cases</a></li>
-          <li><a href="#" class="nav-link" @click="worldCumulative">Total cases</a></li>
-          <li><a href="#" class="nav-link" @click="worldDeaths">Deaths</a></li>
+          <li><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
+          <li><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
+          <li><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
+          <li><a href="#" class="nav-link" :class="{active: isDeaths}" @click="worldDeaths">Deaths</a></li>
           <li><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
           <li><a href="#" class="nav-link disabled">CFR</a></li>
           <li><a href="#" class="nav-link disabled">IFR</a></li>
@@ -40,6 +40,10 @@ export default {
   data: function() {
     return {
       currentJsonFile: '',
+      isRe: true,
+      isActive: false,
+      isTotal: false,
+      isDeaths: false,
     }
   },
   mounted() {
@@ -64,7 +68,7 @@ export default {
 
     // Create hover state and set alternative fill color
     let hs = polygonTemplate.states.create("hover");
-    hs.properties.fill = am4core.color("#7777DD");
+    hs.properties.fill = am4core.color("#777799");
     
     // Add heat rule
     polygonSeries.heatRules.push({
@@ -137,7 +141,15 @@ export default {
     }
   },
   methods: {
+    inactivateMenuOptions: function () {
+      this.isRe = false;
+      this.isActive = false;
+      this.isTotal = false;
+      this.isDeaths = false;
+    },
     worldRe: function () {
+      this.inactivateMenuOptions();
+      this.isRe = true;
       axios
         .get('./data/world-R0.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -155,6 +167,8 @@ export default {
       this.heatLegend.maxColor = am4core.color("#FF6666");
     },
     worldActive: function () {
+      this.inactivateMenuOptions();
+      this.isActive = true;
       axios
         .get('./data/world-active.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -171,6 +185,8 @@ export default {
       this.heatLegend.maxColor = am4core.color("#FF0000");
     },
     worldCumulative: function () {
+      this.inactivateMenuOptions();
+      this.isTotal = true;
       axios
         .get('./data/world-cumulative.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -187,6 +203,8 @@ export default {
       this.heatLegend.maxColor = am4core.color("#FF0000");
     },
     worldDeaths: function () {
+      this.inactivateMenuOptions();
+      this.isDeaths = true;
       axios
         .get('./data/world-deaths.json')
         .then(response => (this.polygonSeries.data = response.data));
