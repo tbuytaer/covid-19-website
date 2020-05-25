@@ -1,7 +1,21 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <div class="world" ref="worldmap"></div>
+  <div>
+    <div class="row">
+      <div class="col-md-2">
+        <ul class="nav nav-pills flex-column">
+          <li><a href="#" class="nav-link active" @click="worldRe">Re</a></li>            
+          <li><a href="#" class="nav-link" @click="worldActive">Active cases</a></li>
+          <li><a href="#" class="nav-link" @click="worldCumulative">Total cases</a></li>
+          <li><a href="#" class="nav-link" @click="worldDeaths">Deaths</a></li>
+          <li><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
+          <li><a href="#" class="nav-link disabled">CFR</a></li>
+          <li><a href="#" class="nav-link disabled">IFR</a></li>
+        </ul>
+      </div>
+      <div class="col-md-10">
+        <div class="worldmap" ref="worldmap"></div>
+      </div>
+    </div>
     <div ref="chartdiv" style="width: 100%; height: 500px;"></div>
   </div>
 </template>
@@ -14,14 +28,14 @@ import * as am4maps from "@amcharts/amcharts4/maps";
 import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow";
 
 import * as am4charts from '@amcharts/amcharts4/charts';
-import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import am4themes_animated from "@amcharts/amcharts4/themes/dark";
 am4core.useTheme(am4themes_animated);
 
 
 export default {
   name: 'WorldMap',
   props: {
-    msg: String
+    title: String,
   },
   data: function() {
     return {
@@ -38,35 +52,47 @@ export default {
     // use the geodata defined above
     polygonSeries.useGeodata = true;
     map.series.push(polygonSeries);
-
     // Hide Antarctica
     polygonSeries.exclude = ["AQ"];
 
     let polygonTemplate = polygonSeries.mapPolygons.template;
     // Show country name when hovering
     polygonTemplate.tooltipText = "{name}: {value}";
-    // Color of countries
-    //polygonTemplate.fill = am4core.color("#74B266");
+    
+    // Default color of countries
+    polygonTemplate.fill =  am4core.color("#d0d0e0");
+
     // Create hover state and set alternative fill color
     let hs = polygonTemplate.states.create("hover");
     hs.properties.fill = am4core.color("#7777DD");
-
+    
     // Add heat rule
     polygonSeries.heatRules.push({
       "property": "fill",
       "target": polygonTemplate,
-      "min": am4core.color("#00FF00"),
-      "max": am4core.color("#FF0000"),
+      "min": am4core.color("#66FF66"),
+      "max": am4core.color("#FF6666"),
       "minvalue": 0,
       "maxValue": 2,
     });
 
+    let heatLegend = map.createChild(am4charts.HeatLegend);
+    heatLegend.series = polygonSeries;
+    heatLegend.maxValue = 2;
+    heatLegend.width = am4core.percent(20);
+    heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
+    heatLegend.valueAxis.renderer.minGridDistance = 20;
+  
+
     // Change data for some countries from the default
     axios
-      .get('./data/worldR0.json')
+      .get('./data/world-R0.json')
       .then(response => (polygonSeries.data = response.data))
     
-
+    this.polygonSeries = polygonSeries;
+    this.polygonTemplate = polygonTemplate;
+    this.heatLegend = heatLegend;
+    this.map = map;
 
 
 
@@ -101,13 +127,126 @@ export default {
     chart.scrollbarX = scrollbarX;
 
     this.chart = chart;
-
-
-
   },
   beforeDestroy() {
     if (this.chart) {
       this.chart.dispose();
+    }
+    if (this.map) {
+      this.map.dispose();
+    }
+  },
+  methods: {
+    worldRe: function () {
+      axios
+        .get('./data/world-R0.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#66FF66"),
+        "max": am4core.color("#FF6666"),
+        "minValue": 0,
+        "maxValue": 2,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value}";
+      this.heatLegend.maxValue = 2;
+    },
+    worldActive: function () {
+      axios
+        .get('./data/world-active.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#CCCCCC"),
+        "max": am4core.color("#FF0000"),
+        "minValue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldCumulative: function () {
+      axios
+        .get('./data/world-cumulative.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#CCCCCC"),
+        "max": am4core.color("#FF0000"),
+        "minValue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldDeaths: function () {
+      axios
+        .get('./data/world-deaths.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#CCCCCC"),
+        "max": am4core.color("#FF0000"),
+        "minValue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldRecovered: function () {
+      axios
+        .get('./data/world-recovered.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#cccccc"),
+        "max": am4core.color("#0000FF"),
+        "minvalue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldActiveDiff: function () {
+      axios
+        .get('./data/world-active-diff.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#cccccc"),
+        "max": am4core.color("#FF0000"),
+        "minvalue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldDeathsDiff: function () {
+      axios
+        .get('./data/world-deaths-diff.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#cccccc"),
+        "max": am4core.color("#FF0000"),
+        "minvalue": 0,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
     }
   }
 }
@@ -126,11 +265,12 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
-a {
-  color: #42b983;
-}
-.world {
+.worldmap {
   width: 100%;
   height: 500px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #cccccc;
 }
+
 </style>

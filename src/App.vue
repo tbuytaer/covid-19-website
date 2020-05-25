@@ -1,11 +1,17 @@
 <template>
   <div id="app">
-    <WorldMap msg="Worldmap"/>
+    <div class="container">
+      <h1>Tracking the spread of COVID-19</h1>
+      <WorldMap title="World"/>
+    </div>
   </div>
 </template>
 
 <script>
 import WorldMap from './components/WorldMap.vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import './assets/bootstrap.css'
 
 export default {
   name: 'App',
@@ -20,8 +26,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  text-align: left;
+  margin-top: 20px;
 }
 </style>
