@@ -23,7 +23,7 @@
     </div>
     <div class="row">
       <div class="col-md-2">
-        <p>Click on a country to get more detailed information.</p>
+        <div class="explanation">Click on a country to get more detailed information.</div>
       </div>
       <div class="col-md-10">
         <div class="countrymap" ref="chartdiv"></div>
@@ -114,15 +114,16 @@ export default {
 
 
 
+
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     chart.paddingRight = 20;
 
     let data = [];
-    let visits = 10;
-    for (let i = 1; i < 366; i++) {
-      visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
-      data.push({ date: new Date(2018, 0, i), name: "name" + i, value: visits });
-    }
+    axios
+      .get('./data/country-17-jh-confirmed.json')
+      .then(response => {
+          chart.data = response.data;
+        })
     chart.data = data;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -304,11 +305,14 @@ li {
 }
 .countrymap {
   width: 100%;
-  height: 200px;
+  height: 300px;
   border-style: solid;
   border-width: 1px;
   border-color: #cccccc;
   background-color: #233648;
 }
-
+.explanation {  
+  font-size: 90%;
+  padding: 0.7em;
+}
 </style>
