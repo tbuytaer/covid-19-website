@@ -72,7 +72,7 @@ export default {
       "target": polygonTemplate,
       "min": am4core.color("#66FF66"),
       "max": am4core.color("#FF6666"),
-      "minvalue": 0,
+      "minValue": 0,
       "maxValue": 2,
     });
 
@@ -151,6 +151,8 @@ export default {
       });
       this.polygonTemplate.tooltipText = "{name}: {value}";
       this.heatLegend.maxValue = 2;
+      this.heatLegend.minColor = am4core.color("#66FF66");
+      this.heatLegend.maxColor = am4core.color("#FF6666");
     },
     worldActive: function () {
       axios
