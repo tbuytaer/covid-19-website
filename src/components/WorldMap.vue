@@ -16,7 +16,19 @@
         <div class="worldmap" ref="worldmap"></div>
       </div>
     </div>
-    <div ref="chartdiv" style="width: 100%; height: 500px;"></div>
+    <div class="row">
+      <div class="col-md-12">
+        <h2>{{countryName}}</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <p>Click on a country to get more detailed information.</p>
+      </div>
+      <div class="col-md-10">
+        <div class="countrymap" ref="chartdiv"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,6 +56,7 @@ export default {
       isActive: false,
       isTotal: false,
       isDeaths: false,
+      countryName: 'Belgium',
     }
   },
   mounted() {
@@ -125,10 +138,6 @@ export default {
 
     series.tooltipText = "{valueY.value}";
     chart.cursor = new am4charts.XYCursor();
-
-    let scrollbarX = new am4charts.XYChartScrollbar();
-    scrollbarX.series.push(series);
-    chart.scrollbarX = scrollbarX;
 
     this.chart = chart;
   },
@@ -291,6 +300,15 @@ li {
   border-style: solid;
   border-width: 1px;
   border-color: #cccccc;
+  background-color: #233648;
+}
+.countrymap {
+  width: 100%;
+  height: 200px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #cccccc;
+  background-color: #233648;
 }
 
 </style>
