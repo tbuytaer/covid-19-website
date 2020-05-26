@@ -117,15 +117,16 @@ export default {
 
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     chart.paddingRight = 20;
+    chart.colors.list = [
+      am4core.color("#5555ff"),
+      am4core.color("#5555ff"),
+      am4core.color("#FF4444"),
+      am4core.color("#FF4444"),
+      am4core.color("#bbbbee"),
+    ];
 
-    let data = [];
-    axios
-      .get('./data/country-17-jh-confirmed.json')
-      .then(response => {
-          chart.data = response.data;
-        })
-    chart.data = data;
-
+    let id = 17;
+    
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
     dateAxis.renderer.grid.template.location = 0;
 
@@ -134,8 +135,63 @@ export default {
     valueAxis.renderer.minWidth = 35;
 
     let series = chart.series.push(new am4charts.LineSeries());
+    var bullet = series.bullets.push(new am4charts.CircleBullet());
+  
+    bullet.circle.strokeWidth = 0;
+    bullet.circle.maxWidth = 1;
     series.dataFields.dateX = "date";
     series.dataFields.valueY = "value";
+    
+
+    let series2 = chart.series.push(new am4charts.LineSeries());
+    series2.dataFields.dateX = "date";
+    series2.dataFields.valueY = "value";
+
+    let series3 = chart.series.push(new am4charts.LineSeries());
+    series3.dataFields.dateX = "date";
+    series3.dataFields.valueY = "value";
+
+    let series4 = chart.series.push(new am4charts.LineSeries());
+    var bullet4 = series4.bullets.push(new am4charts.CircleBullet());
+    bullet4.circle.strokeWidth = 0;
+    bullet.circle.maxWidth = 1;
+    series4.dataFields.dateX = "date";
+    series4.dataFields.valueY = "value";
+
+    let series5 = chart.series.push(new am4charts.LineSeries());
+    series5.dataFields.dateX = "date";
+    series5.dataFields.valueY = "value";
+
+    axios
+      .get('./data/country-' + id + '-jh-confirmed.json')
+      .then(response => {
+          //chart.data = response.data;
+          series.data = response.data;
+        })
+    axios
+      .get('./data/country-' + id + '-c.json')
+      .then(response => {
+          //chart.data = response.data;
+          series2.data = response.data;
+        })
+    axios
+      .get('./data/country-' + id + '-m.json')
+      .then(response => {
+          //chart.data = response.data;
+          series3.data = response.data;
+        })
+    axios
+      .get('./data/country-' + id + '-jh-deaths.json')
+      .then(response => {
+          //chart.data = response.data;
+          series4.data = response.data;
+        })
+    axios
+      .get('./data/country-' + id + '-i.json')
+      .then(response => {
+          //chart.data = response.data;
+          series5.data = response.data;
+        })
 
     series.tooltipText = "{valueY.value}";
     chart.cursor = new am4charts.XYCursor();
@@ -305,7 +361,7 @@ li {
 }
 .countrymap {
   width: 100%;
-  height: 300px;
+  height: 500px;
   border-style: solid;
   border-width: 1px;
   border-color: #cccccc;
