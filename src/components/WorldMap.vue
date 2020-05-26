@@ -245,6 +245,8 @@ export default {
         })
 
     series.tooltipText = "{valueY.value}";
+    series4.tooltipText = "{valueY.value}";
+    series5.tooltipText = "{valueY.value}";
     chart.cursor = new am4charts.XYCursor();
 
     this.chart = chart;
@@ -295,9 +297,10 @@ export default {
         "min": am4core.color("#CCCCCC"),
         "max": am4core.color("#FF0000"),
         "minValue": 0,
+        "maxValue": 200,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
-      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
     },
