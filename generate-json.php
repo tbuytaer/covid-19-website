@@ -230,6 +230,7 @@ foreach ($scanned_directory as $filenr => $filename) {
                 $dataPointList[]=$datapoint;
             }
             file_put_contents("./public/data/".basename($filename, ".csv").".json", json_encode($dataPointList));
+            file_put_contents("./dist/data/".basename($filename, ".csv").".json", json_encode($dataPointList));
         } else {
             // File contains 2 columns with day and values
             $csv = file_get_contents('./rawdata/'.$filename);
@@ -243,6 +244,7 @@ foreach ($scanned_directory as $filenr => $filename) {
                 $dataPointList[]=$datapoint;
             }
             file_put_contents("./public/data/".basename($filename, ".csv").".json", json_encode($dataPointList));
+            file_put_contents("./dist/data/".basename($filename, ".csv").".json", json_encode($dataPointList));
         }
     }
 }
