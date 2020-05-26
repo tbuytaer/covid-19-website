@@ -60,6 +60,7 @@ export default {
     }
   },
   mounted() {
+    //let countryName = 'Belgium';
     let map = am4core.create(this.$refs.worldmap, am4maps.MapChart);
     // low quality map
     map.geodata = am4geodata_worldLow;
@@ -78,6 +79,46 @@ export default {
     
     // Default color of countries
     polygonTemplate.fill =  am4core.color("#d0d0e0");
+
+    let that=this;
+    polygonTemplate.events.on("hit", function(event){
+      // When country is clicked, change the data for country graph
+      console.log(event.target.dataItem.dataContext.id);
+      console.log(event.target.dataItem.dataContext.name);
+      console.log(event.target.dataItem.dataContext.nr);
+      that.countryName = event.target.dataItem.dataContext.name;
+      id = event.target.dataItem.dataContext.nr;
+      axios
+        .get('./data/country-' + id + '-jh-confirmed.json')
+        .then(response => {
+            //chart.data = response.data;
+            series.data = response.data;
+          })
+      axios
+        .get('./data/country-' + id + '-c.json')
+        .then(response => {
+            //chart.data = response.data;
+            series2.data = response.data;
+          })
+      axios
+        .get('./data/country-' + id + '-m.json')
+        .then(response => {
+            //chart.data = response.data;
+            series3.data = response.data;
+          })
+      axios
+        .get('./data/country-' + id + '-jh-deaths.json')
+        .then(response => {
+            //chart.data = response.data;
+            series4.data = response.data;
+          })
+      axios
+        .get('./data/country-' + id + '-i.json')
+        .then(response => {
+            //chart.data = response.data;
+            series5.data = response.data;
+          })
+    })
 
     // Create hover state and set alternative fill color
     let hs = polygonTemplate.states.create("hover");
@@ -99,7 +140,17 @@ export default {
     heatLegend.width = am4core.percent(20);
     heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
     heatLegend.valueAxis.renderer.minGridDistance = 20;
-  
+
+    //let countryList = [];
+    // Get country IDs
+    axios
+    .get('./data/country-ID.json')
+    .then(response => {
+        console.log(response.data);
+        //console.log(response.data[16].id);
+       // countryList = response.data;
+      })
+   // console.log(countryList[16].id);
 
     // Change data for some countries from the default
     axios
