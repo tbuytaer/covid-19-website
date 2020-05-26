@@ -11,9 +11,11 @@
           <li><a href="#" class="nav-link disabled">CFR</a></li>
           <li><a href="#" class="nav-link disabled">IFR</a></li>
         </ul>
+        <div class="explanation">{{mapExplanation}}</div>
       </div>
       <div class="col-md-10">
         <div class="worldmap" ref="worldmap"></div>
+        <div class="explanation">Click on a country to get more detailed information.</div>
       </div>
     </div>
     <div class="row">
@@ -23,10 +25,11 @@
     </div>
     <div class="row">
       <div class="col-md-2">
-        <div class="explanation">Click on a country to get more detailed information.</div>
+        <div class="explanation"><p>Dots are data points from Johns Hopkins. Solid lines are calculated curves.</p></div>
       </div>
       <div class="col-md-10">
-        <div class="countrymap" ref="chartdiv"></div>
+        <div class="countrygraph" ref="chartdiv"></div>
+        <div class="countryr0graph" ref="chartdivr0"></div>
       </div>
     </div>
   </div>
@@ -57,6 +60,7 @@ export default {
       isTotal: false,
       isDeaths: false,
       countryName: 'Belgium',
+      mapExplanation: 'If Re is above 1, there will be an exponential increase in infections.'
     }
   },
   mounted() {
@@ -89,33 +93,33 @@ export default {
       that.countryName = event.target.dataItem.dataContext.name;
       id = event.target.dataItem.dataContext.nr;
       axios
+      .get('./data/country-' + id + '-r0.json')
+      .then(response => {
+          seriesr0.data = response.data;
+        })
+      axios
         .get('./data/country-' + id + '-jh-confirmed.json')
         .then(response => {
-            //chart.data = response.data;
             series.data = response.data;
           })
       axios
         .get('./data/country-' + id + '-c.json')
         .then(response => {
-            //chart.data = response.data;
             series2.data = response.data;
           })
       axios
         .get('./data/country-' + id + '-m.json')
         .then(response => {
-            //chart.data = response.data;
             series3.data = response.data;
           })
       axios
         .get('./data/country-' + id + '-jh-deaths.json')
         .then(response => {
-            //chart.data = response.data;
             series4.data = response.data;
           })
       axios
         .get('./data/country-' + id + '-i.json')
         .then(response => {
-            //chart.data = response.data;
             series5.data = response.data;
           })
     })
@@ -163,7 +167,22 @@ export default {
     this.map = map;
 
 
+    // Default country: Belgium
+    let id = 17;
+    
+    let chartr0 = am4core.create(this.$refs.chartdivr0, am4charts.XYChart);
+    chartr0.paddingRight = 20;
+    chartr0.paddingLeft = 50;
+    let dateAxisr0 = chartr0.xAxes.push(new am4charts.DateAxis());
+    dateAxisr0.renderer.grid.template.location = 0;
 
+    let valueAxisr0 = chartr0.yAxes.push(new am4charts.ValueAxis());
+    valueAxisr0.tooltip.disabled = true;
+    valueAxisr0.renderer.minWidth = 35;
+
+    let seriesr0 = chartr0.series.push(new am4charts.LineSeries());
+    seriesr0.dataFields.dateX = "date";
+    seriesr0.dataFields.valueY = "value";
 
 
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
@@ -176,8 +195,6 @@ export default {
       am4core.color("#bbbbee"),
     ];
 
-    let id = 17;
-    
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
     dateAxis.renderer.grid.template.location = 0;
 
@@ -213,6 +230,40 @@ export default {
     series5.dataFields.dateX = "date";
     series5.dataFields.valueY = "value";
 
+
+
+
+
+
+    chart.scrollbarX = new am4core.Scrollbar();
+    chartr0.scrollbarX = chart.scrollbarX;
+    chart.scrollbarX.parent = chart.bottomAxesContainer;
+    chart.scrollbarX.background.fill = am4core.color('#3B4E60');
+    chart.scrollbarX.background.fillOpacity = 1;
+    chart.scrollbarX.thumb.background.fill = am4core.color('#CCCCFF');
+    chart.scrollbarX.thumb.background.fillOpacity = 1;
+    chart.scrollbarX.start = 0.1;
+    chart.scrollbarX.end = 0.9;
+    chart.scrollbarX.startGrip.background.fill = am4core.color('#EEEEFF');
+    chart.scrollbarX.startGrip.background.fillOpacity = 1;
+    chart.scrollbarX.endGrip.background.fill = am4core.color('#EEEEFF');
+    chart.scrollbarX.endGrip.background.fillOpacity = 1;
+    chart.scrollbarX.minHeight = 10;
+
+    // Use the same scrollbar to also scroll R0 chart
+    
+
+/*
+    chart.scrollbarX = new am4charts.XYChartScrollbar();
+    chart.scrollbarX.series.push(seriesr0);
+*/
+
+    axios
+      .get('./data/country-' + id + '-r0.json')
+      .then(response => {
+          //chart.data = response.data;
+          seriesr0.data = response.data;
+        })
     axios
       .get('./data/country-' + id + '-jh-confirmed.json')
       .then(response => {
@@ -247,13 +298,20 @@ export default {
     series.tooltipText = "{valueY.value}";
     series4.tooltipText = "{valueY.value}";
     series5.tooltipText = "{valueY.value}";
+    
+    seriesr0.tooltipText = "{valueY.value}";
     chart.cursor = new am4charts.XYCursor();
+    chartr0.cursor = new am4charts.XYCursor();
 
     this.chart = chart;
+    this.chartr0 = chartr0;
   },
   beforeDestroy() {
     if (this.chart) {
       this.chart.dispose();
+    }
+    if (this.chartr0) {
+      this.chartr0.dispose();
     }
     if (this.map) {
       this.map.dispose();
@@ -408,21 +466,31 @@ li {
 .worldmap {
   width: 100%;
   height: 500px;
-  border-style: solid;
+  border-style: none;
   border-width: 1px;
   border-color: #cccccc;
   background-color: #233648;
 }
-.countrymap {
+.countrygraph {
+  padding-top: 10px;
   width: 100%;
-  height: 500px;
-  border-style: solid;
+  height: 350px;
+  border-style: none;
+  border-width: 1px;
+  border-color: #cccccc;
+  background-color: #233648;
+}
+.countryr0graph {
+  padding-top: 10px;
+  width: 100%;
+  height: 200px;
+  border-style: none;
   border-width: 1px;
   border-color: #cccccc;
   background-color: #233648;
 }
 .explanation {  
-  font-size: 90%;
+  font-size: 85%;
   padding: 0.7em;
 }
 </style>

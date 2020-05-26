@@ -240,7 +240,7 @@ foreach ($scanned_directory as $filenr => $filename) {
                 //echo json_encode($value);
                 $datapoint = new datapoint;
                 $datapoint->date = date("Y-m-d", mktime(12,0,0,1,21 + $value[0],2020));
-                $datapoint->value = round($value[1]);
+                $datapoint->value = round($value[1],2);
                 $dataPointList[]=$datapoint;
             }
             file_put_contents("./public/data/".basename($filename, ".csv").".json", json_encode($dataPointList));
