@@ -2,15 +2,24 @@
   <div>
     <div class="row">
       <div class="col-md-2">
-        <ul class="nav nav-pills flex-column">
-          <li><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
-          <li><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
-          <li><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
-          <li><a href="#" class="nav-link" :class="{active: isDeaths}" @click="worldDeaths">Deaths</a></li>
-          <li><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
-          <li><a href="#" class="nav-link disabled">CFR</a></li>
-          <li><a href="#" class="nav-link disabled">IFR</a></li>
-        </ul>
+        <nav class="navbar navbar-expand-md navbar-dark">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#worldnav" aria-controls="worldnav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="worldnav">
+            <ul class="nav nav-pills">
+              <li class="nav-item"><a href="#" class="nav-link disabled">Danger Zone</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="worldDeaths">Deaths</a></li>
+              <li class="nav-item"><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
+              <li class="nav-item"><a href="#" class="nav-link disabled">CFR</a></li>
+              <li class="nav-item"><a href="#" class="nav-link disabled">IFR</a></li>
+            </ul>
+          </div>
+        </nav>
         <div class="explanation">{{mapExplanation}}</div>
       </div>
       <div class="col-md-10">
@@ -41,11 +50,9 @@ import axios from 'axios';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4maps from "@amcharts/amcharts4/maps";
 import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow";
-
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from "@amcharts/amcharts4/themes/dark";
 am4core.useTheme(am4themes_animated);
-
 
 export default {
   name: 'WorldMap',
@@ -145,16 +152,12 @@ export default {
     heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
     heatLegend.valueAxis.renderer.minGridDistance = 20;
 
-    //let countryList = [];
     // Get country IDs
     axios
     .get('./data/country-ID.json')
     .then(response => {
         console.log(response.data);
-        //console.log(response.data[16].id);
-       // countryList = response.data;
       })
-   // console.log(countryList[16].id);
 
     // Change data for some countries from the default
     axios
@@ -166,27 +169,84 @@ export default {
     this.heatLegend = heatLegend;
     this.map = map;
 
-
     // Default country: Belgium
     let id = 17;
     
     let chartr0 = am4core.create(this.$refs.chartdivr0, am4charts.XYChart);
     chartr0.paddingRight = 20;
     chartr0.paddingLeft = 50;
+    chartr0.cursor = new am4charts.XYCursor();
+    chartr0.colors.list = [am4core.color('#FF00FF')];
+    this.chartr0 = chartr0;
+
     let dateAxisr0 = chartr0.xAxes.push(new am4charts.DateAxis());
     dateAxisr0.renderer.grid.template.location = 0;
 
     let valueAxisr0 = chartr0.yAxes.push(new am4charts.ValueAxis());
+    valueAxisr0.baseValue = -1;
+    valueAxisr0.min = 0;
+    valueAxisr0.max = 3;
+    valueAxisr0.strictMinMax = true;
     valueAxisr0.tooltip.disabled = true;
     valueAxisr0.renderer.minWidth = 35;
 
     let seriesr0 = chartr0.series.push(new am4charts.LineSeries());
     seriesr0.dataFields.dateX = "date";
     seriesr0.dataFields.valueY = "value";
+    seriesr0.baseAxis = dateAxisr0;
+    seriesr0.fillOpacity = 0.3;
+    seriesr0.tooltipText = "{valueY.value}";
+  
+    // Red color for high Re
+    let rangeRed = valueAxisr0.createSeriesRange(seriesr0);
+    rangeRed.value = 1.2;
+    rangeRed.endValue = 10;
+    rangeRed.contents.stroke = am4core.color('#ff4444');
+    rangeRed.contents.fill = am4core.color('#FF4444');
+    rangeRed.contents.fillOpacity = 0.3;
 
+    // Orange color for Medium Re
+    let rangeOrange = valueAxisr0.createSeriesRange(seriesr0);
+    rangeOrange.value = 0.8;
+    rangeOrange.endValue = 1.2;
+    rangeOrange.contents.stroke = am4core.color('#FFFF44');
+    rangeOrange.contents.fill = am4core.color('#FFFF44');
+    rangeOrange.contents.fillOpacity = 0.3;
+    
+    // Green color for Medium Re
+    let rangeGreen = valueAxisr0.createSeriesRange(seriesr0);
+    rangeGreen.value = 0.02;
+    rangeGreen.endValue = 0.8;
+    rangeGreen.contents.stroke = am4core.color('#44FF44');
+    rangeGreen.contents.fill = am4core.color('#44FF44');
+    rangeGreen.contents.fillOpacity = 0.3;
+    
+    // Neutral color
+    let rangeNeutral = valueAxisr0.createSeriesRange(seriesr0);
+    rangeNeutral.value = 0;
+    rangeNeutral.endValue = 0.02;
+    rangeNeutral.contents.stroke = am4core.color('#CCCCFF');
+    rangeNeutral.contents.fill = am4core.color('#CCCCFF');
+    rangeNeutral.contents.fillOpacity = 0.3;
+    
 
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     chart.paddingRight = 20;
+    chart.cursor = new am4charts.XYCursor();
+    chart.scrollbarX = new am4core.Scrollbar();
+    chartr0.scrollbarX = chart.scrollbarX;
+    chart.scrollbarX.parent = chart.bottomAxesContainer;
+    chart.scrollbarX.background.fill = am4core.color('#3B4E60');
+    chart.scrollbarX.background.fillOpacity = 1;
+    chart.scrollbarX.thumb.background.fill = am4core.color('#CCCCFF');
+    chart.scrollbarX.thumb.background.fillOpacity = 1;
+    chart.scrollbarX.start = 0.17;
+    chart.scrollbarX.end = 0.83;
+    chart.scrollbarX.startGrip.background.fill = am4core.color('#EEEEFF');
+    chart.scrollbarX.startGrip.background.fillOpacity = 1;
+    chart.scrollbarX.endGrip.background.fill = am4core.color('#EEEEFF');
+    chart.scrollbarX.endGrip.background.fillOpacity = 1;
+    chart.scrollbarX.minHeight = 10;
     chart.colors.list = [
       am4core.color("#5555ff"),
       am4core.color("#5555ff"),
@@ -194,6 +254,7 @@ export default {
       am4core.color("#FF4444"),
       am4core.color("#bbbbee"),
     ];
+    this.chart = chart;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
     dateAxis.renderer.grid.template.location = 0;
@@ -201,16 +262,17 @@ export default {
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.tooltip.disabled = true;
     valueAxis.renderer.minWidth = 35;
+    valueAxis.min = 0;
+    valueAxis.strictMinMax = true;
 
     let series = chart.series.push(new am4charts.LineSeries());
     var bullet = series.bullets.push(new am4charts.CircleBullet());
-  
     bullet.circle.strokeWidth = 0;
     bullet.circle.maxWidth = 1;
     series.dataFields.dateX = "date";
     series.dataFields.valueY = "value";
+    series.tooltipText = "{valueY.value}";
     
-
     let series2 = chart.series.push(new am4charts.LineSeries());
     series2.dataFields.dateX = "date";
     series2.dataFields.valueY = "value";
@@ -225,86 +287,46 @@ export default {
     bullet.circle.maxWidth = 1;
     series4.dataFields.dateX = "date";
     series4.dataFields.valueY = "value";
+    series4.tooltipText = "{valueY.value}";
 
     let series5 = chart.series.push(new am4charts.LineSeries());
     series5.dataFields.dateX = "date";
     series5.dataFields.valueY = "value";
+    series5.baseAxis = dateAxis;
+    series5.fillOpacity = 0.3;
+    series5.tooltipText = "{valueY.value}";
 
-
-
-
-
-
-    chart.scrollbarX = new am4core.Scrollbar();
-    chartr0.scrollbarX = chart.scrollbarX;
-    chart.scrollbarX.parent = chart.bottomAxesContainer;
-    chart.scrollbarX.background.fill = am4core.color('#3B4E60');
-    chart.scrollbarX.background.fillOpacity = 1;
-    chart.scrollbarX.thumb.background.fill = am4core.color('#CCCCFF');
-    chart.scrollbarX.thumb.background.fillOpacity = 1;
-    chart.scrollbarX.start = 0.1;
-    chart.scrollbarX.end = 0.9;
-    chart.scrollbarX.startGrip.background.fill = am4core.color('#EEEEFF');
-    chart.scrollbarX.startGrip.background.fillOpacity = 1;
-    chart.scrollbarX.endGrip.background.fill = am4core.color('#EEEEFF');
-    chart.scrollbarX.endGrip.background.fillOpacity = 1;
-    chart.scrollbarX.minHeight = 10;
-
-    // Use the same scrollbar to also scroll R0 chart
-    
-
-/*
-    chart.scrollbarX = new am4charts.XYChartScrollbar();
-    chart.scrollbarX.series.push(seriesr0);
-*/
 
     axios
       .get('./data/country-' + id + '-r0.json')
       .then(response => {
-          //chart.data = response.data;
           seriesr0.data = response.data;
         })
     axios
       .get('./data/country-' + id + '-jh-confirmed.json')
       .then(response => {
-          //chart.data = response.data;
           series.data = response.data;
         })
     axios
       .get('./data/country-' + id + '-c.json')
       .then(response => {
-          //chart.data = response.data;
           series2.data = response.data;
         })
     axios
       .get('./data/country-' + id + '-m.json')
       .then(response => {
-          //chart.data = response.data;
           series3.data = response.data;
         })
     axios
       .get('./data/country-' + id + '-jh-deaths.json')
       .then(response => {
-          //chart.data = response.data;
           series4.data = response.data;
         })
     axios
       .get('./data/country-' + id + '-i.json')
       .then(response => {
-          //chart.data = response.data;
           series5.data = response.data;
         })
-
-    series.tooltipText = "{valueY.value}";
-    series4.tooltipText = "{valueY.value}";
-    series5.tooltipText = "{valueY.value}";
-    
-    seriesr0.tooltipText = "{valueY.value}";
-    chart.cursor = new am4charts.XYCursor();
-    chartr0.cursor = new am4charts.XYCursor();
-
-    this.chart = chart;
-    this.chartr0 = chartr0;
   },
   beforeDestroy() {
     if (this.chart) {
@@ -470,6 +492,21 @@ li {
   border-width: 1px;
   border-color: #cccccc;
   background-color: #233648;
+}
+@media screen and (max-width: 800px){
+  .worldmap {
+    height: 400px;
+  }
+}
+@media screen and (max-width: 600px){
+  .worldmap {
+    height: 300px;
+  }
+}
+@media screen and (max-width: 500px){
+  .worldmap {
+    height: 250px;
+  }
 }
 .countrygraph {
   padding-top: 10px;
