@@ -186,6 +186,30 @@ if (($handle = fopen("./rawdata/world-deaths-diff.csv", "r")) !== FALSE) {
 };
 
 /**
+ * Add the ISO country code to our list of risk
+ */
+$countryRisklist = array();
+if (($handle = fopen("./rawdata/world-risk.csv", "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        $found = FALSE;
+        foreach ($countryCodes as $countrycode) {
+            if ($countrycode[2]==$data[1]) {
+                $country = new country;
+                $country->id = $countrycode[1];
+                $country->nr = $data[0];
+                $country->value = 100000 * $data[2]/$countrycode[3];
+                $countryRisklist[] = $country;
+                $found = TRUE;
+            }
+        }
+        if (!$found) {
+         //   echo "<br/>Not found: " . $data[1];
+        }
+    }
+    fclose($handle);
+};
+
+/**
  * Add the ISO country code to our country list
  */
 $countryIDlist = array();
@@ -260,6 +284,7 @@ file_put_contents("./public/data/world-deaths.json", json_encode($countryDeathsl
 file_put_contents("./public/data/world-recovered.json", json_encode($countryRecoveredlist));
 file_put_contents("./public/data/world-active-diff.json", json_encode($countryActiveDifflist));
 file_put_contents("./public/data/world-deaths-diff.json", json_encode($countryDeathsDifflist));
+file_put_contents("./public/data/world-risk.json", json_encode($countryRisklist));
 
 // Also put them in the dist/ folder, but when Vue is compiled these will be overwritten by the ones in public/
 file_put_contents("./dist/data/world-R0.json", json_encode($countryR0list));
@@ -269,6 +294,7 @@ file_put_contents("./dist/data/world-deaths.json", json_encode($countryDeathslis
 file_put_contents("./dist/data/world-recovered.json", json_encode($countryRecoveredlist));
 file_put_contents("./dist/data/world-active-diff.json", json_encode($countryActiveDifflist));
 file_put_contents("./dist/data/world-deaths-diff.json", json_encode($countryDeathsDifflist));
+file_put_contents("./dist/data/world-risk.json", json_encode($countryRisklist));
 
 
 // Country list

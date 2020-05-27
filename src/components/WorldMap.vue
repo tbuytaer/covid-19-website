@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-md-2">
-        <nav class="navbar navbar-expand-md navbar-dark">
+      <div class="col-lg-3">
+        <nav class="navbar navbar-expand-lg navbar-dark world">
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#worldnav" aria-controls="worldnav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
 
           <div class="collapse navbar-collapse" id="worldnav">
             <ul class="nav nav-pills">
-              <li class="nav-item"><a href="#" class="nav-link disabled">Danger Zone</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="worldRisk">Danger Zone</a></li>
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
@@ -20,23 +20,24 @@
             </ul>
           </div>
         </nav>
-        <div class="explanation">{{mapExplanation}}</div>
+        <div class="explanation world"><p v-html="mapExplanation"></p></div>
+        <div></div>
       </div>
-      <div class="col-md-10">
+      <div class="col-lg-9">
         <div class="worldmap" ref="worldmap"></div>
-        <div class="explanation">Click on a country to get more detailed information.</div>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-lg-12">
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
         <h2>{{countryName}}</h2>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-2">
         <div class="explanation"><p>Dots are data points from Johns Hopkins. Solid lines are calculated curves.</p></div>
       </div>
-      <div class="col-md-10">
+      <div class="col-lg-9">
         <div class="countrygraph" ref="chartdiv"></div>
         <div class="countryr0graph" ref="chartdivr0"></div>
       </div>
@@ -66,6 +67,7 @@ export default {
       isActive: false,
       isTotal: false,
       isDeaths: false,
+      isRisk: false,
       countryName: 'Belgium',
       mapExplanation: 'If Re is above 1, there will be an exponential increase in infections.'
     }
@@ -139,8 +141,8 @@ export default {
     polygonSeries.heatRules.push({
       "property": "fill",
       "target": polygonTemplate,
-      "min": am4core.color("#66FF66"),
-      "max": am4core.color("#FF6666"),
+      "min": am4core.color("#44FF44"),
+      "max": am4core.color("#FF4444"),
       "minValue": 0,
       "maxValue": 2,
     });
@@ -159,7 +161,7 @@ export default {
         console.log(response.data);
       })
 
-    // Change data for some countries from the default
+    // Load the default map
     axios
       .get('./data/world-R0.json')
       .then(response => (polygonSeries.data = response.data))
@@ -185,7 +187,7 @@ export default {
     let valueAxisr0 = chartr0.yAxes.push(new am4charts.ValueAxis());
     valueAxisr0.baseValue = -1;
     valueAxisr0.min = 0;
-    valueAxisr0.max = 3;
+    valueAxisr0.max = 4;
     valueAxisr0.strictMinMax = true;
     valueAxisr0.tooltip.disabled = true;
     valueAxisr0.renderer.minWidth = 35;
@@ -345,6 +347,7 @@ export default {
       this.isActive = false;
       this.isTotal = false;
       this.isDeaths = false;
+      this.isRisk = false;
     },
     worldRe: function () {
       this.inactivateMenuOptions();
@@ -364,6 +367,7 @@ export default {
       this.heatLegend.maxValue = 2;
       this.heatLegend.minColor = am4core.color("#66FF66");
       this.heatLegend.maxColor = am4core.color("#FF6666");
+      this.mapExplanation = 'If Re is above 1, there will be an exponential increase in infections.';
     },
     worldActive: function () {
       this.inactivateMenuOptions();
@@ -383,6 +387,7 @@ export default {
       this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = 'Number of active cases (per 100 000).';
     },
     worldCumulative: function () {
       this.inactivateMenuOptions();
@@ -401,6 +406,7 @@ export default {
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = 'Total number of cases (per 100 000).';
     },
     worldDeaths: function () {
       this.inactivateMenuOptions();
@@ -419,6 +425,7 @@ export default {
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = 'Number of deaths (per 100 000)';
     },
     worldRecovered: function () {
       axios
@@ -429,12 +436,13 @@ export default {
         "target": this.polygonTemplate,
         "min": am4core.color("#cccccc"),
         "max": am4core.color("#0000FF"),
-        "minvalue": 0,
+        "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = 'Number of officially recovered cases (per 100 000).';
     },
     worldActiveDiff: function () {
       axios
@@ -445,7 +453,7 @@ export default {
         "target": this.polygonTemplate,
         "min": am4core.color("#cccccc"),
         "max": am4core.color("#FF0000"),
-        "minvalue": 0,
+        "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
@@ -461,12 +469,32 @@ export default {
         "target": this.polygonTemplate,
         "min": am4core.color("#cccccc"),
         "max": am4core.color("#FF0000"),
-        "minvalue": 0,
+        "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
+    },
+    worldRisk: function () {
+      this.inactivateMenuOptions();
+      this.isRisk = true;
+      axios
+        .get('./data/world-risk.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#cccccc"),
+        "max": am4core.color("#FF0000"),
+        "minValue": 0,
+        "maxValue": 200,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.maxValue = 200;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = '<em>Re</em> multiplied with <em>active cases</em> (per 100 000).<br/>This gives a rough indication of how \'bad\' the situation is.';
     }
   }
 }
@@ -495,17 +523,17 @@ li {
 }
 @media screen and (max-width: 800px){
   .worldmap {
-    height: 400px;
+    height: 350px;
   }
 }
 @media screen and (max-width: 600px){
   .worldmap {
-    height: 300px;
+    height: 250px;
   }
 }
 @media screen and (max-width: 500px){
   .worldmap {
-    height: 250px;
+    height: 200px;
   }
 }
 .countrygraph {
@@ -529,5 +557,19 @@ li {
 .explanation {  
   font-size: 85%;
   padding: 0.7em;
+}
+.explanation.world {
+  
+  border-style: dotted;
+  border-width: 1px;
+  border-color: rgba(255,255,255,0.2);
+  margin-top: 1em;
+  padding-top: 1em;
+}
+.navbar.world {
+  padding: 0;
+}
+.navbar.world ul.nav li.nav-item {
+  width: 100%;
 }
 </style>
