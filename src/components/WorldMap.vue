@@ -192,10 +192,10 @@ export default {
     dateAxisr0.renderer.grid.template.location = 0;
 
     let valueAxisr0 = chartr0.yAxes.push(new am4charts.ValueAxis());
-    valueAxisr0.baseValue = -1;
+    //valueAxisr0.baseValue = -1;
     valueAxisr0.min = 0;
     valueAxisr0.max = 4;
-    valueAxisr0.strictMinMax = true;
+    //valueAxisr0.strictMinMax = true;
     valueAxisr0.tooltip.disabled = true;
     valueAxisr0.renderer.minWidth = 35;
 
@@ -272,7 +272,6 @@ export default {
     valueAxis.tooltip.disabled = true;
     valueAxis.renderer.minWidth = 35;
     valueAxis.min = 0;
-    valueAxis.strictMinMax = true;
 
     let series = chart.series.push(new am4charts.LineSeries());
     var bullet = series.bullets.push(new am4charts.CircleBullet());
