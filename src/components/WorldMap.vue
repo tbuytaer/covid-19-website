@@ -36,11 +36,29 @@
     <div class="row">
       <div class="col-lg-3">
         <h2>{{countryName}}</h2>
-        <div class="explanation"><p>Dots are data points from Johns Hopkins. Solid lines are calculated curves.</p></div>
+        <div class="explanation">
+          <p>Use the slider to select a time period.</p>
+          <p>Dots are data from <em>Johns Hopkins</em>.<br/>
+          Solid lines are calculated curves.</p>
+          <p>The projection for the next 30 days uses the last calculated R<sub>e</sub>.<br/>
+          </p>
+        </div>
       </div>
       <div class="col-lg-9">
         <div class="countrygraph" ref="chartdiv"></div>
         <div class="countryr0graph" ref="chartdivr0"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
+        <h2>Disclaimer</h2>
+      </div>
+      <div class="col-lg-9"> 
+        <div class="explanation disclaimer">
+          <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
+          <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
+          <p>Calculated values are based on a SEIR model that uses data from <em>Johns Hopkins University</em> to estimate R<sub>e</sub> and other values.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -64,14 +82,14 @@ export default {
   data: function() {
     return {
       currentJsonFile: '',
-      isRe: true,
+      isRisk: true,
+      isRe: false,
       isActive: false,
       isTotal: false,
       isDeaths: false,
-      isRisk: false,
-      mapTitle: 'Re',
+      mapTitle: 'Risk',
       countryName: 'Belgium',
-      mapExplanation: 'If Re is above 1, there will be an exponential increase in infections.'
+      mapExplanation: 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).'
     }
   },
   mounted() {
@@ -90,7 +108,7 @@ export default {
 
     let polygonTemplate = polygonSeries.mapPolygons.template;
     // Show country name when hovering
-    polygonTemplate.tooltipText = "{name}: {value}";
+    polygonTemplate.tooltipText = "{name}";
     
     // Default color of countries
     polygonTemplate.fill =  am4core.color("#d0d0e0");
@@ -145,15 +163,16 @@ export default {
     polygonSeries.heatRules.push({
       "property": "fill",
       "target": polygonTemplate,
-      "min": am4core.color("#44FF44"),
-      "max": am4core.color("#FF4444"),
+      "min": am4core.color("#CCCCCC"),
+      "max": am4core.color("#FF0000"),
       "minValue": 0,
-      "maxValue": 2,
+      "maxValue": 200,
     });
 
     let heatLegend = map.createChild(am4charts.HeatLegend);
     heatLegend.series = polygonSeries;
-    heatLegend.maxValue = 2;
+    heatLegend.disabled = true;
+    heatLegend.maxValue = 200;
     heatLegend.width = am4core.percent(20);
     heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
     heatLegend.valueAxis.renderer.minGridDistance = 20;
@@ -170,7 +189,7 @@ export default {
 
     // Load the default map
     axios
-      .get('./data/world-R0.json')
+      .get('./data/world-risk.json')
       .then(response => (polygonSeries.data = response.data))
     
     this.polygonSeries = polygonSeries;
@@ -199,13 +218,24 @@ export default {
     valueAxisr0.tooltip.disabled = true;
     valueAxisr0.renderer.minWidth = 35;
 
+    //valueAxisr0.renderer.grid.template.disabled = true;
+    //valueAxisr0.renderer.labels.template.disabled = true;
+    let rangeLine = valueAxisr0.axisRanges.create();
+    rangeLine.value = 1;
+    rangeLine.grid.stroke = am4core.color('#FF4444');
+    rangeLine.grid.strokeOpacity = 0.5;
+/*
+let rangeLine3 = valueAxisr0.axisRanges.create();
+    rangeLine3.value = 3;
+    rangeLine3.label.text = "{value}";
+*/
     let seriesr0 = chartr0.series.push(new am4charts.LineSeries());
     seriesr0.dataFields.dateX = "date";
     seriesr0.dataFields.valueY = "value";
     seriesr0.baseAxis = dateAxisr0;
     seriesr0.fillOpacity = 0.3;
     seriesr0.tooltipText = "{valueY.value}";
-  
+
     // Red color for high Re
     let rangeRed = valueAxisr0.createSeriesRange(seriesr0);
     rangeRed.value = 1.2;
@@ -503,7 +533,7 @@ export default {
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
-        "min": am4core.color("#cccccc"),
+        "min": am4core.color("#CCCCCC"),
         "max": am4core.color("#FF0000"),
         "minValue": 0,
         "maxValue": 200,
@@ -588,6 +618,9 @@ li {
   border-color: rgba(255,255,255,0.2);
   margin-top: 1em;
   padding-top: 1em;
+}
+.explanation.disclaimer {
+  margin-top: 20px;
 }
 .navbar.world {
   padding: 0;
