@@ -197,7 +197,7 @@ if (($handle = fopen("./rawdata/world-risk.csv", "r")) !== FALSE) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
-                $country->value = 100000 * $data[2]/$countrycode[3];
+                $country->value = round(100000 * $data[2]/$countrycode[3], 2);
                 $countryRisklist[] = $country;
                 $found = TRUE;
             }

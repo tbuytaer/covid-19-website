@@ -6,10 +6,11 @@
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#worldnav" aria-controls="worldnav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
+          <span class="maptitle d-inline d-lg-none">{{mapTitle}}</span>
 
           <div class="collapse navbar-collapse" id="worldnav">
             <ul class="nav nav-pills">
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="worldRisk">Danger Zone</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="worldRisk">Risk</a></li>
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
@@ -68,6 +69,7 @@ export default {
       isTotal: false,
       isDeaths: false,
       isRisk: false,
+      mapTitle: 'Re',
       countryName: 'Belgium',
       mapExplanation: 'If Re is above 1, there will be an exponential increase in infections.'
     }
@@ -96,9 +98,11 @@ export default {
     let that=this;
     polygonTemplate.events.on("hit", function(event){
       // When country is clicked, change the data for country graph
+      /*
       console.log(event.target.dataItem.dataContext.id);
       console.log(event.target.dataItem.dataContext.name);
       console.log(event.target.dataItem.dataContext.nr);
+      */
       that.countryName = event.target.dataItem.dataContext.name;
       id = event.target.dataItem.dataContext.nr;
       axios
@@ -154,12 +158,15 @@ export default {
     heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
     heatLegend.valueAxis.renderer.minGridDistance = 20;
 
+
+/*
     // Get country IDs
     axios
     .get('./data/country-ID.json')
     .then(response => {
         console.log(response.data);
       })
+*/
 
     // Load the default map
     axios
@@ -352,6 +359,7 @@ export default {
     worldRe: function () {
       this.inactivateMenuOptions();
       this.isRe = true;
+      this.mapTitle = 'Re';
       axios
         .get('./data/world-R0.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -364,6 +372,7 @@ export default {
         "maxValue": 2,
       });
       this.polygonTemplate.tooltipText = "{name}: {value}";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = 2;
       this.heatLegend.minColor = am4core.color("#66FF66");
       this.heatLegend.maxColor = am4core.color("#FF6666");
@@ -372,6 +381,7 @@ export default {
     worldActive: function () {
       this.inactivateMenuOptions();
       this.isActive = true;
+      this.mapTitle = 'Active cases';
       axios
         .get('./data/world-active.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -384,6 +394,7 @@ export default {
         "maxValue": 200,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -392,6 +403,7 @@ export default {
     worldCumulative: function () {
       this.inactivateMenuOptions();
       this.isTotal = true;
+      this.mapTitle = 'Total cases';
       axios
         .get('./data/world-cumulative.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -403,6 +415,7 @@ export default {
         "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -411,6 +424,7 @@ export default {
     worldDeaths: function () {
       this.inactivateMenuOptions();
       this.isDeaths = true;
+      this.mapTitle = 'Deaths';
       axios
         .get('./data/world-deaths.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -422,6 +436,7 @@ export default {
         "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -439,6 +454,7 @@ export default {
         "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -456,6 +472,7 @@ export default {
         "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -472,6 +489,7 @@ export default {
         "minValue": 0,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.heatLegend.disabled = false;
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
@@ -479,6 +497,7 @@ export default {
     worldRisk: function () {
       this.inactivateMenuOptions();
       this.isRisk = true;
+      this.mapTitle = 'Risk';
       axios
         .get('./data/world-risk.json')
         .then(response => (this.polygonSeries.data = response.data));
@@ -490,11 +509,12 @@ export default {
         "minValue": 0,
         "maxValue": 200,
       });
-      this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
+      this.polygonTemplate.tooltipText = "{name}";
+      this.heatLegend.disabled = true;
       this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = '<em>Re</em> multiplied with <em>active cases</em> (per 100 000).<br/>This gives a rough indication of how \'bad\' the situation is.';
+      this.mapExplanation = 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).';
     }
   }
 }
@@ -502,8 +522,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
+h2 {
+  font-size: 1.5rem;
+  margin: 20px 0 0;
 }
 ul {
   list-style-type: none;
@@ -558,8 +579,11 @@ li {
   font-size: 85%;
   padding: 0.7em;
 }
+.maptitle {
+  font-size: 1.5rem;
+  margin-left: 2em;
+}
 .explanation.world {
-  
   border-style: dotted;
   border-width: 1px;
   border-color: rgba(255,255,255,0.2);

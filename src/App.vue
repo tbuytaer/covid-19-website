@@ -12,6 +12,10 @@ import WorldMap from './components/WorldMap.vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/bootstrap.css'
+import 'jquery'
+import 'popper.js'
+import 'bootstrap/dist/js/bootstrap.bundle'
+
 
 export default {
   name: 'App',
@@ -28,5 +32,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
   margin-top: 20px;
+}
+h1 {
+  font-size: 2rem;
 }
 </style>
