@@ -105,6 +105,12 @@ export default {
     map.series.push(polygonSeries);
     // Hide Antarctica
     polygonSeries.exclude = ["AQ"];
+    // Allow saving as image
+    map.exporting.menu = new am4core.ExportMenu();
+    map.exporting.formatOptions.getKey("print").disabled = true;
+    map.exporting.useRetina = true;
+    map.exporting.menu.align = "bottom";
+    map.exporting.menu.verticalAlign = "right";
 
     let polygonTemplate = polygonSeries.mapPolygons.template;
     // Show country name when hovering
@@ -205,6 +211,13 @@ export default {
     chartr0.paddingLeft = 50;
     chartr0.cursor = new am4charts.XYCursor();
     chartr0.colors.list = [am4core.color('#FF00FF')];
+    // Allow saving as image
+    chartr0.exporting.menu = new am4core.ExportMenu();
+    chartr0.exporting.formatOptions.getKey("print").disabled = true;
+    chartr0.exporting.useRetina = true;
+    chartr0.exporting.menu.align = "right";
+    chartr0.exporting.menu.verticalAlign = "bottom";
+
     this.chartr0 = chartr0;
 
     let dateAxisr0 = chartr0.xAxes.push(new am4charts.DateAxis());
@@ -235,7 +248,9 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     seriesr0.baseAxis = dateAxisr0;
     seriesr0.fillOpacity = 0.3;
     seriesr0.tooltipText = "{valueY.value}";
-
+    // Don't include tooltip in saved images
+    seriesr0.tooltip.exportable = false;
+    
     // Red color for high Re
     let rangeRed = valueAxisr0.createSeriesRange(seriesr0);
     rangeRed.value = 1.2;
@@ -293,6 +308,12 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       am4core.color("#FF4444"),
       am4core.color("#bbbbee"),
     ];
+    // Allow saving as image
+    chart.exporting.menu = new am4core.ExportMenu();
+    chart.exporting.formatOptions.getKey("print").disabled = true;
+    chart.exporting.useRetina = true;
+    chart.exporting.menu.align = "right";
+    chart.exporting.menu.verticalAlign = "bottom";
     this.chart = chart;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -310,6 +331,8 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series.dataFields.dateX = "date";
     series.dataFields.valueY = "value";
     series.tooltipText = "{valueY.value}";
+    // Don't include tooltip in saved images
+    series.tooltip.exportable = false;
     
     let series2 = chart.series.push(new am4charts.LineSeries());
     series2.dataFields.dateX = "date";
@@ -326,6 +349,8 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series4.dataFields.dateX = "date";
     series4.dataFields.valueY = "value";
     series4.tooltipText = "{valueY.value}";
+    // Don't include tooltip in saved images
+    series4.tooltip.exportable = false;
 
     let series5 = chart.series.push(new am4charts.LineSeries());
     series5.dataFields.dateX = "date";
@@ -333,6 +358,8 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series5.baseAxis = dateAxis;
     series5.fillOpacity = 0.3;
     series5.tooltipText = "{valueY.value}";
+    // Don't include tooltip in saved images
+    series5.tooltip.exportable = false;
 
 
     axios
