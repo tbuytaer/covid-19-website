@@ -24,7 +24,7 @@ if (($handle = fopen("./rawdata/world-r0.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -48,7 +48,7 @@ if (($handle = fopen("./rawdata/world-active.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -72,7 +72,7 @@ if (($handle = fopen("./rawdata/world-cumulative.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -97,7 +97,7 @@ if (($handle = fopen("./rawdata/world-deaths.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -121,7 +121,7 @@ if (($handle = fopen("./rawdata/world-recovered.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -145,7 +145,7 @@ if (($handle = fopen("./rawdata/world-active-diff.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -169,7 +169,7 @@ if (($handle = fopen("./rawdata/world-deaths-diff.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -193,7 +193,7 @@ if (($handle = fopen("./rawdata/world-risk.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         $found = FALSE;
         foreach ($countryCodes as $countrycode) {
-            if ($countrycode[2]==$data[1]) {
+            if ($countrycode[2] == $data[1]) {
                 $country = new country;
                 $country->id = $countrycode[1];
                 $country->nr = $data[0];
@@ -208,6 +208,33 @@ if (($handle = fopen("./rawdata/world-risk.csv", "r")) !== FALSE) {
     }
     fclose($handle);
 };
+
+/**
+ * Add the ISO country code to our list of CFR
+ */
+$countryCFRlist = array();
+if (($handle = fopen("./rawdata/world-CFR.csv", "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        $found = FALSE;
+        foreach ($countryCodes as $countrycode) {
+            if ($countrycode[2] == $data[1]) {
+                $country = new country;
+                $country->id = $countrycode[1];
+                $country->nr = $data[0];
+                if ($data[3] != "Indeterminate" && $data[3] <= 0.01) {
+                    $country->value = round(100 * $data[2],1);
+                    $countryCFRlist[] = $country;
+                }
+                $found = TRUE;
+            }
+        }
+        if (!$found) {
+         //   echo "<br/>Not found: " . $data[1];
+        }
+    }
+    fclose($handle);
+};
+
 
 /**
  * Add the ISO country code to our country list
@@ -285,6 +312,7 @@ file_put_contents("./public/data/world-recovered.json", json_encode($countryReco
 file_put_contents("./public/data/world-active-diff.json", json_encode($countryActiveDifflist));
 file_put_contents("./public/data/world-deaths-diff.json", json_encode($countryDeathsDifflist));
 file_put_contents("./public/data/world-risk.json", json_encode($countryRisklist));
+file_put_contents("./public/data/world-CFR.json", json_encode($countryCFRlist));
 
 // Also put them in the dist/ folder, but when Vue is compiled these will be overwritten by the ones in public/
 file_put_contents("./dist/data/world-R0.json", json_encode($countryR0list));
@@ -295,6 +323,7 @@ file_put_contents("./dist/data/world-recovered.json", json_encode($countryRecove
 file_put_contents("./dist/data/world-active-diff.json", json_encode($countryActiveDifflist));
 file_put_contents("./dist/data/world-deaths-diff.json", json_encode($countryDeathsDifflist));
 file_put_contents("./dist/data/world-risk.json", json_encode($countryRisklist));
+file_put_contents("./dist/data/world-CFR.json", json_encode($countryCFRlist));
 
 
 // Country list

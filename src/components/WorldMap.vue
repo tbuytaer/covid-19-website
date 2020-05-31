@@ -16,8 +16,8 @@
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
               <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="worldDeaths">Deaths</a></li>
               <li class="nav-item"><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
-              <li class="nav-item"><a href="#" class="nav-link disabled">CFR</a></li>
-              <li class="nav-item"><a href="#" class="nav-link disabled">IFR</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="worldCFR">Case Fatality Rate</a></li>
+              <li class="nav-item"><a href="#" class="nav-link disabled">Infection Fatality Rate</a></li>
             </ul>
           </div>
         </nav>
@@ -87,6 +87,7 @@ export default {
       isActive: false,
       isTotal: false,
       isDeaths: false,
+      isCFR: false,
       mapTitle: 'Risk',
       countryName: 'Belgium',
       mapExplanation: 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).'
@@ -117,7 +118,8 @@ export default {
     polygonTemplate.tooltipText = "{name}";
     
     // Default color of countries
-    polygonTemplate.fill =  am4core.color("#d0d0e0");
+    //polygonTemplate.fill =  am4core.color("#d0d0e0");
+    polygonTemplate.fill =  am4core.color("#777790");
 
     let that=this;
     polygonTemplate.events.on("hit", function(event){
@@ -163,7 +165,8 @@ export default {
 
     // Create hover state and set alternative fill color
     let hs = polygonTemplate.states.create("hover");
-    hs.properties.fill = am4core.color("#777799");
+    //hs.properties.fill = am4core.color("#777799");
+    hs.properties.fill = am4core.color("#777790");
     
     // Add heat rule
     polygonSeries.heatRules.push({
@@ -411,6 +414,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.isTotal = false;
       this.isDeaths = false;
       this.isRisk = false;
+      this.isCFR = false;
     },
     worldRe: function () {
       this.inactivateMenuOptions();
@@ -571,6 +575,28 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).';
+    },
+    worldCFR: function () {
+      this.inactivateMenuOptions();
+      this.isCFR = true;
+      this.mapTitle = 'Case Fatality Rate';
+      axios
+        .get('./data/world-CFR.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      this.polygonSeries.heatRules.push({
+        "property": "fill",
+        "target": this.polygonTemplate,
+        "min": am4core.color("#CCCCCC"),
+        "max": am4core.color("#FF0000"),
+        "minValue": 0,
+        "maxValue": 20,
+      });
+      this.polygonTemplate.tooltipText = "{name}: {value}";
+      this.heatLegend.disabled = false;
+      this.heatLegend.maxValue = 20;
+      this.heatLegend.minColor = am4core.color("#CCCCCC");
+      this.heatLegend.maxColor = am4core.color("#FF0000");
+      this.mapExplanation = 'The percentage of <em>confirmed cases</em> with a fatal outcome.<br/>This is <b><u>not</u></b> the chance of dying when you are infected.<br/>Countries colored in black';
     }
   }
 }
