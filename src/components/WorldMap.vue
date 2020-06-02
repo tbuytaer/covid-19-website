@@ -47,8 +47,8 @@
           <p>Use the slider to select a time period.</p>
           <p>Dots are data from <em>Johns Hopkins</em>.<br/>
           Solid lines are calculated curves.</p>
-          <p>The projection for the next 30 days uses the last calculated R<sub>e</sub>.<br/>
-          </p>
+          <p>The projection for the next 30 days uses the last calculated R<sub>e</sub>.<p/>
+          <p><span class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take this forecast with lots of grains of salt.</span></p>
         </div>
       </div>
       <div class="col-lg-9">
@@ -65,6 +65,7 @@
           <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
           <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
           <p>Calculated values are based on a SEIR model that uses data from <em>Johns Hopkins University</em> to estimate R<sub>e</sub> and other values.</p>
+          <p><span class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</span></p>
         </div>
       </div>
     </div>
@@ -101,7 +102,7 @@ export default {
       regionTitle: 'World',
       mapTitle: 'Risk',
       countryName: 'Belgium',
-      mapExplanation: 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).'
+      mapExplanation: 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).<br/>High levels mean lots of new infections to be expected in the following days.'
     }
   },
   mounted() {
@@ -135,12 +136,7 @@ export default {
     let that=this;
     let prefix = 'country';
     polygonTemplate.events.on("hit", function(event){
-      // When country is clicked, change the data for country graph
-      /*
-      console.log(event.target.dataItem.dataContext.id);
-      console.log(event.target.dataItem.dataContext.name);
-      console.log(event.target.dataItem.dataContext.nr);
-      */
+      // When country or state is clicked, change the data for country/state graph
       that.countryName = event.target.dataItem.dataContext.name;
       id = event.target.dataItem.dataContext.nr;
       if (that.isWorldMap) {
@@ -148,7 +144,6 @@ export default {
       } else if (that.isUSMap) {
         prefix = 'state';
       }
-
       axios
       .get('./data/' + prefix + '-' + id + '-r0.json')
       .then(response => {
@@ -203,16 +198,6 @@ export default {
     heatLegend.width = am4core.percent(20);
     heatLegend.valueAxis.renderer.labels.template.fontSize = 12;
     heatLegend.valueAxis.renderer.minGridDistance = 20;
-
-
-/*
-    // Get country IDs
-    axios
-    .get('./data/country-ID.json')
-    .then(response => {
-        console.log(response.data);
-      })
-*/
 
     // Load the default map
     axios
@@ -382,7 +367,6 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     // Don't include tooltip in saved images
     series5.tooltip.exportable = false;
 
-
     axios
       .get('./data/country-' + id + '-r0.json')
       .then(response => {
@@ -434,7 +418,6 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.isRisk = false;
       this.isCFR = false;
     },
-
     WorldMap: function() {
       this.isWorldMap = true;
       this.isUSMap = false;
@@ -463,7 +446,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       } else if (this.isCFR) {
         this.mapCFR();
       }
-    },      
+    },   
     mapRe: function () {
       this.inactivateMenuOptions();
       this.isRe = true;
@@ -492,7 +475,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = 2;
       this.heatLegend.minColor = am4core.color("#66FF66");
       this.heatLegend.maxColor = am4core.color("#FF6666");
-      this.mapExplanation = 'If Re is above 1, there will be an exponential increase in infections.';
+      this.mapExplanation = 'The average amount of new people infected by an infectious person.<br/>If Re is above 1, there will be an exponential increase in infections.<br/>If it\'s below 1, there will be a decrease.';
     },
     mapActive: function () {
       this.inactivateMenuOptions();
@@ -522,7 +505,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'Number of active cases (per 100 000).';
+      this.mapExplanation = 'Number of active cases (per 100 000).<br/>This is not the total amount of people who are currently infected, but the <em>officially diagnosed</em> amount.';
     },
     mapCumulative: function () {
       this.inactivateMenuOptions();
@@ -551,7 +534,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'Total number of cases (per 100 000).';
+      this.mapExplanation = 'Total number of cases (per 100 000).<br/>This is not the total amount of people who have ever caught the disease, but the <em>officially diagnosed</em> amount.';
     },
     mapDeaths: function () {
       this.inactivateMenuOptions();
@@ -580,7 +563,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'Number of deaths (per 100 000)';
+      this.mapExplanation = 'Number of deaths (per 100 000).<br/>Countries differ in their estimation of how much of their overmortality they attribute to COVID-19.';
     },
     mapRecovered: function () {
       if (this.isUSMap) {
@@ -686,7 +669,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = 200;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).';
+      this.mapExplanation = 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).<br/>High levels mean lots of new infections to be expected in the following days.';
     },
     mapCFR: function () {
       this.inactivateMenuOptions();
@@ -716,7 +699,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = 20;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'The percentage of <em>confirmed cases</em> with a fatal outcome.<br/>This is <b><u>not</u></b> the chance of dying when you are infected.';
+      this.mapExplanation = 'The percentage of <em>confirmed cases</em> with a fatal outcome.<br/>This is <b><u>not</u></b> the chance of dying when you are infected.<br/>Countries differ in their estimation of how much of their overmortality they attribute to COVID-19.';
     }
   }
 }
@@ -811,5 +794,9 @@ li {
 }
 .regionbuttons .btn-secondary {
   background-color: unset;
+}
+.red {
+  color:#ff3535;
+  font-weight: bold;
 }
 </style>
