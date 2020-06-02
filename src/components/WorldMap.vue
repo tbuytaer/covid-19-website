@@ -2,21 +2,26 @@
   <div>
     <div class="row">
       <div class="col-lg-3">
+        <div class="btn-group btn-group-lg regionbuttons" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary" :class="{active: isWorldMap}" @click="WorldMap">World</button>
+          <button type="button" class="btn btn-secondary" :class="{active: isUSMap}" @click="USMap">USA</button>
+        </div>
         <nav class="navbar navbar-expand-lg navbar-dark world">
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#worldnav" aria-controls="worldnav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
+
           <span class="maptitle d-inline d-lg-none">{{mapTitle}}</span>
 
           <div class="collapse navbar-collapse" id="worldnav">
             <ul class="nav nav-pills">
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="worldRisk">Risk</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="worldRe">Re</a></li>            
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="worldActive">Active cases</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="worldCumulative">Total cases</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="worldDeaths">Deaths</a></li>
-              <li class="nav-item"><a href="#" class="nav-link disabled" @click="worldRecovered">% Recovered</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="worldCFR">Case Fatality Rate</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="mapRisk">Risk</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="mapRe">Re</a></li>            
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="mapActive">Active cases</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="mapCumulative">Total cases</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="mapDeaths">Deaths</a></li>
+              <li class="nav-item"><a href="#" class="nav-link disabled" @click="mapRecovered">% Recovered</a></li>
+              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="mapCFR">Case Fatality Rate</a></li>
               <li class="nav-item"><a href="#" class="nav-link disabled">Infection Fatality Rate</a></li>
             </ul>
           </div>
@@ -70,6 +75,7 @@ import axios from 'axios';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4maps from "@amcharts/amcharts4/maps";
 import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow";
+import am4geodata_USLow from "@amcharts/amcharts4-geodata/usaLow";
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from "@amcharts/amcharts4/themes/dark";
 am4core.useTheme(am4themes_animated);
@@ -82,6 +88,8 @@ export default {
   data: function() {
     return {
       currentJsonFile: '',
+      isWorldMap: true,
+      isUSMap: false,
       isRisk: true,
       isRe: false,
       isActive: false,
@@ -122,6 +130,7 @@ export default {
     polygonTemplate.fill =  am4core.color("#777790");
 
     let that=this;
+    let prefix = 'country';
     polygonTemplate.events.on("hit", function(event){
       // When country is clicked, change the data for country graph
       /*
@@ -131,33 +140,39 @@ export default {
       */
       that.countryName = event.target.dataItem.dataContext.name;
       id = event.target.dataItem.dataContext.nr;
+      if (that.isWorldMap) {
+        prefix = 'country';
+      } else if (that.isUSMap) {
+        prefix = 'state';
+      }
+
       axios
-      .get('./data/country-' + id + '-r0.json')
+      .get('./data/' + prefix + '-' + id + '-r0.json')
       .then(response => {
           seriesr0.data = response.data;
         })
       axios
-        .get('./data/country-' + id + '-jh-confirmed.json')
+        .get('./data/' + prefix + '-' + id + '-jh-confirmed.json')
         .then(response => {
             series.data = response.data;
           })
       axios
-        .get('./data/country-' + id + '-c.json')
+        .get('./data/' + prefix + '-' + id + '-c.json')
         .then(response => {
             series2.data = response.data;
           })
       axios
-        .get('./data/country-' + id + '-m.json')
+        .get('./data/' + prefix + '-' + id + '-m.json')
         .then(response => {
             series3.data = response.data;
           })
       axios
-        .get('./data/country-' + id + '-jh-deaths.json')
+        .get('./data/' + prefix + '-' + id + '-jh-deaths.json')
         .then(response => {
             series4.data = response.data;
           })
       axios
-        .get('./data/country-' + id + '-i.json')
+        .get('./data/' + prefix + '-' + id + '-i.json')
         .then(response => {
             series5.data = response.data;
           })
@@ -416,13 +431,49 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.isRisk = false;
       this.isCFR = false;
     },
-    worldRe: function () {
+
+    WorldMap: function() {
+      this.isWorldMap = true;
+      this.isUSMap = false;
+      this.mapMode();
+    },
+    USMap: function() {
+      this.isWorldMap = false;
+      this.isUSMap = true;
+      this.mapMode();
+    },
+    mapMode: function() {
+      console.log(this.isRe);
+      console.log(this.isActive);
+      if (this.isRe) {
+        this.mapRe();
+      } else if (this.isActive) {
+        this.mapActive();
+      } else if (this.isTotal) {
+        this.mapCumulative();
+      } else if (this.isDeaths) {
+        this.mapDeaths();
+      } else if (this.isRisk) {
+        this.mapRisk();
+      } else if (this.isCFR) {
+        this.mapCFR();
+      }
+    },      
+    mapRe: function () {
       this.inactivateMenuOptions();
       this.isRe = true;
       this.mapTitle = 'Re';
-      axios
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-R0.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-R0.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -438,13 +489,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF6666");
       this.mapExplanation = 'If Re is above 1, there will be an exponential increase in infections.';
     },
-    worldActive: function () {
+    mapActive: function () {
       this.inactivateMenuOptions();
       this.isActive = true;
       this.mapTitle = 'Active cases';
-      axios
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-active.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-active.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -460,13 +519,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'Number of active cases (per 100 000).';
     },
-    worldCumulative: function () {
+    mapCumulative: function () {
       this.inactivateMenuOptions();
       this.isTotal = true;
       this.mapTitle = 'Total cases';
-      axios
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-cumulative.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-cumulative.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -481,13 +548,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'Total number of cases (per 100 000).';
     },
-    worldDeaths: function () {
+    mapDeaths: function () {
       this.inactivateMenuOptions();
       this.isDeaths = true;
       this.mapTitle = 'Deaths';
-      axios
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-deaths.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-deaths.json')
         .then(response => (this.polygonSeries.data = response.data));
+      }
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -502,10 +577,18 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'Number of deaths (per 100 000)';
     },
-    worldRecovered: function () {
-      axios
+    mapRecovered: function () {
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-recovered.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-recovered.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -520,10 +603,18 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'Number of officially recovered cases (per 100 000).';
     },
-    worldActiveDiff: function () {
-      axios
+    mapActiveDiff: function () {
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-active-diff.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-active-diff.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -537,10 +628,18 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
     },
-    worldDeathsDiff: function () {
-      axios
+    mapDeathsDiff: function () {
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-deaths-diff.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-deaths-diff.json')
         .then(response => (this.polygonSeries.data = response.data));
+      } 
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -554,13 +653,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
     },
-    worldRisk: function () {
+    mapRisk: function () {
       this.inactivateMenuOptions();
       this.isRisk = true;
       this.mapTitle = 'Risk';
-      axios
+      if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-risk.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-risk.json')
         .then(response => (this.polygonSeries.data = response.data));
+      }
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -576,13 +683,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).';
     },
-    worldCFR: function () {
+    mapCFR: function () {
       this.inactivateMenuOptions();
       this.isCFR = true;
       this.mapTitle = 'Case Fatality Rate';
-      axios
+            if (this.isUSMap) {
+        this.map.geodata = am4geodata_USLow;
+        axios
+        .get('./data/US-CFR.json')
+        .then(response => (this.polygonSeries.data = response.data));
+      } else {
+        this.map.geodata = am4geodata_worldLow;
+        axios
         .get('./data/world-CFR.json')
         .then(response => (this.polygonSeries.data = response.data));
+      }
       this.polygonSeries.heatRules.push({
         "property": "fill",
         "target": this.polygonTemplate,
@@ -596,7 +711,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       this.heatLegend.maxValue = 20;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
-      this.mapExplanation = 'The percentage of <em>confirmed cases</em> with a fatal outcome.<br/>This is <b><u>not</u></b> the chance of dying when you are infected.<br/>Countries colored in black';
+      this.mapExplanation = 'The percentage of <em>confirmed cases</em> with a fatal outcome.<br/>This is <b><u>not</u></b> the chance of dying when you are infected.';
     }
   }
 }
@@ -679,6 +794,11 @@ li {
   padding: 0;
 }
 .navbar.world ul.nav li.nav-item {
+  width: 100%;
+  margin: 0;
+}
+
+.regionbuttons {
   width: 100%;
 }
 </style>
