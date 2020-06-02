@@ -2,28 +2,30 @@
   <div>
     <div class="row">
       <div class="col-lg-3">
-        <div class="btn-group btn-group-lg regionbuttons" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-secondary" :class="{active: isWorldMap}" @click="WorldMap">World</button>
-          <button type="button" class="btn btn-secondary" :class="{active: isUSMap}" @click="USMap">USA</button>
-        </div>
         <nav class="navbar navbar-expand-lg navbar-dark world">
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#worldnav" aria-controls="worldnav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
 
-          <span class="maptitle d-inline d-lg-none">{{mapTitle}}</span>
+          <span class="maptitle d-inline d-lg-none">{{mapTitle}} ({{regionTitle}})</span>
 
           <div class="collapse navbar-collapse" id="worldnav">
-            <ul class="nav nav-pills">
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="mapRisk">Risk</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="mapRe">Re</a></li>            
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="mapActive">Active cases</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="mapCumulative">Total cases</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="mapDeaths">Deaths</a></li>
-              <li class="nav-item"><a href="#" class="nav-link disabled" @click="mapRecovered">% Recovered</a></li>
-              <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="mapCFR">Case Fatality Rate</a></li>
-              <li class="nav-item"><a href="#" class="nav-link disabled">Infection Fatality Rate</a></li>
-            </ul>
+            <div class="btn-group btn-group-md regionbuttons" role="group" aria-label="Choose region">
+              <button type="button" class="btn btn-secondary" :class="{active: isWorldMap}" @click="WorldMap">World</button>
+              <button type="button" class="btn btn-secondary" :class="{active: isUSMap}" @click="USMap">USA</button>
+            </div>
+            <div class="menu">
+              <ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRisk}" @click="mapRisk">Risk</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isRe}" @click="mapRe">Re</a></li>            
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isActive}" @click="mapActive">Active cases</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isTotal}" @click="mapCumulative">Total cases</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="mapDeaths">Deaths</a></li>
+                <li class="nav-item"><a href="#" class="nav-link disabled" @click="mapRecovered">% Recovered</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="mapCFR">Case Fatality Rate</a></li>
+                <li class="nav-item"><a href="#" class="nav-link disabled">Infection Fatality Rate</a></li>
+              </ul>
+            </div>
           </div>
         </nav>
         <div class="explanation world"><p v-html="mapExplanation"></p></div>
@@ -96,6 +98,7 @@ export default {
       isTotal: false,
       isDeaths: false,
       isCFR: false,
+      regionTitle: 'World',
       mapTitle: 'Risk',
       countryName: 'Belgium',
       mapExplanation: 'This gives a rough indication of how \'bad\' the situation is.<br/>Calculated by multiplying <em>Re</em> with <em>active cases</em> (per 100 000).'
@@ -435,11 +438,13 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     WorldMap: function() {
       this.isWorldMap = true;
       this.isUSMap = false;
+      this.regionTitle = 'World';
       this.mapMode();
     },
     USMap: function() {
       this.isWorldMap = false;
       this.isUSMap = true;
+      this.regionTitle = 'USA';
       this.mapMode();
     },
     mapMode: function() {
@@ -793,12 +798,18 @@ li {
 .navbar.world {
   padding: 0;
 }
+.navbar.world .navbar-collapse, .navbar.world .navbar-expand-lg {
+  flex-direction: column;
+}
 .navbar.world ul.nav li.nav-item {
   width: 100%;
   margin: 0;
 }
-
 .regionbuttons {
   width: 100%;
+  margin-bottom: 0.7em;
+}
+.regionbuttons .btn-secondary {
+  background-color: unset;
 }
 </style>
