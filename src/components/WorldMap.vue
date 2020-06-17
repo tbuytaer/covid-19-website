@@ -47,7 +47,7 @@
           <p>Dots are data from <em>Johns Hopkins</em>.<br/>
           Solid lines are calculated curves.</p>
           <p>The projection for the next 30 days uses the last calculated R<sub>e</sub>.<p/>
-          <p><span class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take this forecast with lots of grains of salt.</span></p>
+          <p class="red"><span>Predicting the future is hard, and depends on a lot of factors that evolve over time. So take this forecast with lots of grains of salt.</span></p>
         </div>
       </div>
       <div class="col-lg-9">
@@ -64,7 +64,7 @@
           <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
           <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
           <p>Calculated values are based on a SEIR model that uses data from <em>Johns Hopkins University</em> to estimate R<sub>e</sub> and other values.</p>
-          <p><span class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</span></p>
+          <p class="red"><span>Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</span></p>
         </div>
       </div>
     </div>
@@ -299,18 +299,18 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     chart.scrollbarX.background.fillOpacity = 1;
     chart.scrollbarX.thumb.background.fill = am4core.color('#CCCCFF');
     chart.scrollbarX.thumb.background.fillOpacity = 1;
-    chart.scrollbarX.start = 0.17;
-    chart.scrollbarX.end = 0.83;
+    chart.scrollbarX.start = 0.10;
+    chart.scrollbarX.end = 0.9;
     chart.scrollbarX.startGrip.background.fill = am4core.color('#EEEEFF');
     chart.scrollbarX.startGrip.background.fillOpacity = 1;
     chart.scrollbarX.endGrip.background.fill = am4core.color('#EEEEFF');
     chart.scrollbarX.endGrip.background.fillOpacity = 1;
     chart.scrollbarX.minHeight = 10;
     chart.colors.list = [
-      am4core.color("#5555ff"),
-      am4core.color("#5555ff"),
-      am4core.color("#FF4444"),
-      am4core.color("#FF4444"),
+      am4core.color("#5684d0"),
+      am4core.color("#5684d0"),
+      am4core.color("#dd3333"),
+      am4core.color("#dd3333"),
       am4core.color("#bbbbee"),
     ];
     // Allow saving as image
@@ -333,6 +333,8 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     var bullet = series.bullets.push(new am4charts.CircleBullet());
     bullet.circle.strokeWidth = 0;
     bullet.circle.maxWidth = 1;
+    bullet.circle.radius = 3;
+    series.strokeOpacity = 0;
     series.dataFields.dateX = "date";
     series.dataFields.valueY = "value";
     series.tooltipText = "{valueY.value}";
@@ -342,15 +344,21 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     let series2 = chart.series.push(new am4charts.LineSeries());
     series2.dataFields.dateX = "date";
     series2.dataFields.valueY = "value";
+    series2.strokeWidth = 2;
+    series2.strokeOpacity = 0.7;
 
     let series3 = chart.series.push(new am4charts.LineSeries());
     series3.dataFields.dateX = "date";
     series3.dataFields.valueY = "value";
+    series3.strokeWidth = 2;
+    series3.strokeOpacity = 0.7;
 
     let series4 = chart.series.push(new am4charts.LineSeries());
     var bullet4 = series4.bullets.push(new am4charts.CircleBullet());
     bullet4.circle.strokeWidth = 0;
-    bullet.circle.maxWidth = 1;
+    bullet4.circle.maxWidth = 1;
+    bullet4.circle.radius = 3;
+    series4.strokeOpacity = 0;
     series4.dataFields.dateX = "date";
     series4.dataFields.valueY = "value";
     series4.tooltipText = "{valueY.value}";
@@ -796,7 +804,10 @@ li {
   background-color: unset;
 }
 .red {
-  color:#ff3535;
-  font-weight: bold;
+  border-style: dotted;
+  border-color:rgba(255,0,0,0.6);
+  border-width: 1px;
+  background-color: rgba(255,0,0,0.2);
+  padding: 0.4em;
 }
 </style>
