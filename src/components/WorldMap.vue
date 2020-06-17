@@ -23,7 +23,6 @@
                 <li class="nav-item"><a href="#" class="nav-link" :class="{active: isDeaths}" @click="mapDeaths">Deaths</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled" @click="mapRecovered">% Recovered</a></li>
                 <li class="nav-item"><a href="#" class="nav-link" :class="{active: isCFR}" @click="mapCFR">Case Fatality Rate</a></li>
-                <li class="nav-item"><a href="#" class="nav-link disabled">Infection Fatality Rate</a></li>
               </ul>
             </div>
           </div>
@@ -134,15 +133,15 @@ export default {
     polygonTemplate.fill =  am4core.color("#777790");
 
     let that=this;
-    let prefix = 'country';
+    let prefix = 'world';
     polygonTemplate.events.on("hit", function(event){
       // When country or state is clicked, change the data for country/state graph
       that.countryName = event.target.dataItem.dataContext.name;
       id = event.target.dataItem.dataContext.nr;
       if (that.isWorldMap) {
-        prefix = 'country';
+        prefix = 'world';
       } else if (that.isUSMap) {
-        prefix = 'state';
+        prefix = 'USA';
       }
       axios
       .get('./data/' + prefix + '-' + id + '-r0.json')
@@ -210,7 +209,7 @@ export default {
     this.map = map;
 
     // Default country: Belgium
-    let id = 17;
+    let id = 16;
     
     let chartr0 = am4core.create(this.$refs.chartdivr0, am4charts.XYChart);
     chartr0.paddingRight = 20;
@@ -368,32 +367,32 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series5.tooltip.exportable = false;
 
     axios
-      .get('./data/country-' + id + '-r0.json')
+      .get('./data/world-' + id + '-r0.json')
       .then(response => {
           seriesr0.data = response.data;
         })
     axios
-      .get('./data/country-' + id + '-jh-confirmed.json')
+      .get('./data/world-' + id + '-jh-confirmed.json')
       .then(response => {
           series.data = response.data;
         })
     axios
-      .get('./data/country-' + id + '-c.json')
+      .get('./data/world-' + id + '-c.json')
       .then(response => {
           series2.data = response.data;
         })
     axios
-      .get('./data/country-' + id + '-m.json')
+      .get('./data/world-' + id + '-m.json')
       .then(response => {
           series3.data = response.data;
         })
     axios
-      .get('./data/country-' + id + '-jh-deaths.json')
+      .get('./data/world-' + id + '-jh-deaths.json')
       .then(response => {
           series4.data = response.data;
         })
     axios
-      .get('./data/country-' + id + '-i.json')
+      .get('./data/world-' + id + '-i.json')
       .then(response => {
           series5.data = response.data;
         })
@@ -454,7 +453,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-R0.json')
+        .get('./data/USA-R0.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -484,7 +483,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-active.json')
+        .get('./data/USA-active.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -514,7 +513,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-cumulative.json')
+        .get('./data/USA-cumulative.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -528,10 +527,11 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
         "min": am4core.color("#CCCCCC"),
         "max": am4core.color("#FF0000"),
         "minValue": 0,
+        "maxValue": 1000,
       });
       this.polygonTemplate.tooltipText = "{name}: {value} / 100 000";
       this.heatLegend.disabled = false;
-      this.heatLegend.maxValue = this.polygonSeries.heatRules.maxValue;
+      this.heatLegend.maxValue = 1000;
       this.heatLegend.minColor = am4core.color("#CCCCCC");
       this.heatLegend.maxColor = am4core.color("#FF0000");
       this.mapExplanation = 'Total number of cases (per 100 000).<br/>This is not the total amount of people who have ever caught the disease, but the <em>officially diagnosed</em> amount.';
@@ -543,7 +543,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-deaths.json')
+        .get('./data/USA-deaths.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -569,7 +569,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-recovered.json')
+        .get('./data/USA-recovered.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -595,7 +595,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-active-diff.json')
+        .get('./data/USA-active-diff.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -620,7 +620,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-deaths-diff.json')
+        .get('./data/USA-deaths-diff.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -648,7 +648,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-risk.json')
+        .get('./data/USA-risk.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
@@ -678,7 +678,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
             if (this.isUSMap) {
         this.map.geodata = am4geodata_USLow;
         axios
-        .get('./data/US-CFR.json')
+        .get('./data/USA-CFR.json')
         .then(response => (this.polygonSeries.data = response.data));
       } else {
         this.map.geodata = am4geodata_worldLow;
