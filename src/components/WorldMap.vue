@@ -123,6 +123,9 @@ export default {
     map.exporting.useRetina = true;
     map.exporting.menu.align = "bottom";
     map.exporting.menu.verticalAlign = "right";
+    map.exporting.formatOptions.getKey("png").scale = 2;
+    map.exporting.formatOptions.getKey("jpg").scale = 2;
+    map.exporting.formatOptions.getKey("pdf").scale = 2;
 
     let polygonTemplate = polygonSeries.mapPolygons.template;
     // Show country name when hovering
@@ -222,7 +225,9 @@ export default {
     chartr0.exporting.useRetina = true;
     chartr0.exporting.menu.align = "right";
     chartr0.exporting.menu.verticalAlign = "bottom";
-
+    chartr0.exporting.formatOptions.getKey("png").scale = 2;
+    chartr0.exporting.formatOptions.getKey("jpg").scale = 2;
+    chartr0.exporting.formatOptions.getKey("pdf").scale = 2;
     this.chartr0 = chartr0;
 
     let dateAxisr0 = chartr0.xAxes.push(new am4charts.DateAxis());
@@ -319,6 +324,9 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     chart.exporting.useRetina = true;
     chart.exporting.menu.align = "right";
     chart.exporting.menu.verticalAlign = "bottom";
+    chart.exporting.formatOptions.getKey("png").scale = 2;
+    chart.exporting.formatOptions.getKey("jpg").scale = 2;
+    chart.exporting.formatOptions.getKey("pdf").scale = 2;
     this.chart = chart;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
