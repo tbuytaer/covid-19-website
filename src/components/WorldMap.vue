@@ -162,6 +162,11 @@ export default {
             series2.data = response.data;
           })
       axios
+        .get('./data/' + prefix + '-' + id + '-c-range.json')
+        .then(response => {
+            series2range.data = response.data;
+          })
+      axios
         .get('./data/' + prefix + '-' + id + '-m.json')
         .then(response => {
             series3.data = response.data;
@@ -314,6 +319,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     chart.colors.list = [
       am4core.color("#5684d0"),
       am4core.color("#5684d0"),
+      am4core.color('#5684d0'),
       am4core.color("#dd3333"),
       am4core.color("#dd3333"),
       am4core.color("#bbbbee"),
@@ -354,6 +360,15 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series2.dataFields.valueY = "value";
     series2.strokeWidth = 2;
     series2.strokeOpacity = 0.7;
+
+    let series2range = chart.series.push(new am4charts.LineSeries());
+    series2range.dataFields.dateX = "date";
+    series2range.dataFields.openValueY = "minvalue";
+    series2range.dataFields.valueY = "maxvalue";
+    series2range.sequencedInterpolation = true;
+    series2range.fillOpacity = 0.3;
+    series2range.strokeOpacity = 0;
+    series2range.tensionX = 0.8;
 
     let series3 = chart.series.push(new am4charts.LineSeries());
     series3.dataFields.dateX = "date";
@@ -396,6 +411,11 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       .get('./data/world-' + id + '-c.json')
       .then(response => {
           series2.data = response.data;
+        })
+    axios
+      .get('./data/world-' + id + '-c-range.json')
+      .then(response => {
+          series2range.data = response.data;
         })
     axios
       .get('./data/world-' + id + '-m.json')
