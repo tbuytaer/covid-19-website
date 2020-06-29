@@ -61,10 +61,11 @@
       </div>
       <div class="col-lg-9"> 
         <div class="explanation disclaimer">
+          <p class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</p>
           <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
           <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
-          <p>Calculated values are based on a SEIR model that uses data from <em>Johns Hopkins University</em> to estimate R<sub>e</sub> and other values.</p>
-          <p class="red"><span>Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</span></p>
+          <p>Calculated values are based on a SEIR model that uses data from <em><a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University</a></em> to estimate R<sub>e</sub> and other values.</p>
+          <p><span>One of the assumptions of this model is that all new infections are caused by people inside this state. If most infections come from abroad, this will cause a (fictitious) spike in Re values.</span></p>
         </div>
       </div>
     </div>
@@ -755,6 +756,9 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
+a {
+  color: #78b8f9;
+}
 .worldmap {
   width: 100%;
   height: 500px;
@@ -835,7 +839,7 @@ li {
   border-style: dotted;
   border-color:rgba(255,0,0,0.6);
   border-width: 1px;
-  background-color: rgba(255,0,0,0.2);
+  background-color: rgba(255,68,68,0.3);
   padding: 0.4em;
 }
 </style>
