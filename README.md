@@ -1,13 +1,9 @@
-# Graphs to track the spread of COVID-19
+# Graphs to track the spread of COVID-19 worldwide
 
 ## Updating data files
-Export new CSV files from **Mathematica** and place them in **/rawdata/**.
+Use [this seird model](https://github.com/tbuytaer/seird) to generate the JSON files and place them in `/public/data/` and `/dist/data/`.
 
-Generate the JSON files.
-```
-php generate-json.php 
-```
-These will be placed in **/public/data/** and in **/dist/data/**
+Or just place them in `/public/data/` and compile this project, which will also place the data files in `/dist/data/`.
 
 ## Project setup
 ```

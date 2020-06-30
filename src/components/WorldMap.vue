@@ -52,7 +52,6 @@
       </div>
       <div class="col-lg-9">
         <div class="countrygraph" ref="chartdiv"></div>
-        <div class="countryr0graph" ref="chartdivr0"></div>
       </div>
     </div>
     <div class="row">
@@ -61,10 +60,11 @@
       </div>
       <div class="col-lg-9"> 
         <div class="explanation disclaimer">
+          <p class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</p>
           <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
           <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
-          <p>Calculated values are based on a SEIR model that uses data from <em>Johns Hopkins University</em> to estimate R<sub>e</sub> and other values.</p>
-          <p class="red"><span>Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</span></p>
+          <p>Calculated values are based on a SEIR model that uses data from <em><a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University</a></em> to estimate R<sub>e</sub> and other values.</p>
+          <p><span>One of the assumptions of this model is that all new infections are caused by people inside this state. If most infections come from abroad, this will cause a (fictitious) spike in Re values.</span></p>
         </div>
       </div>
     </div>
@@ -162,6 +162,11 @@ export default {
             series2.data = response.data;
           })
       axios
+        .get('./data/' + prefix + '-' + id + '-c-range.json')
+        .then(response => {
+            series2range.data = response.data;
+          })
+      axios
         .get('./data/' + prefix + '-' + id + '-m.json')
         .then(response => {
             series3.data = response.data;
@@ -213,107 +218,79 @@ export default {
 
     // Default country: Belgium
     let id = 16;
-    
-    let chartr0 = am4core.create(this.$refs.chartdivr0, am4charts.XYChart);
-    chartr0.paddingRight = 20;
-    chartr0.paddingLeft = 50;
-    chartr0.cursor = new am4charts.XYCursor();
-    chartr0.colors.list = [am4core.color('#FF00FF')];
-    // Allow saving as image
-    chartr0.exporting.menu = new am4core.ExportMenu();
-    chartr0.exporting.formatOptions.getKey("print").disabled = true;
-    chartr0.exporting.useRetina = true;
-    chartr0.exporting.menu.align = "right";
-    chartr0.exporting.menu.verticalAlign = "bottom";
-    chartr0.exporting.formatOptions.getKey("png").scale = 2;
-    chartr0.exporting.formatOptions.getKey("jpg").scale = 2;
-    chartr0.exporting.formatOptions.getKey("pdf").scale = 2;
-    this.chartr0 = chartr0;
-
-    let dateAxisr0 = chartr0.xAxes.push(new am4charts.DateAxis());
-    dateAxisr0.renderer.grid.template.location = 0;
-
-    let valueAxisr0 = chartr0.yAxes.push(new am4charts.ValueAxis());
-    //valueAxisr0.baseValue = -1;
-    valueAxisr0.min = 0;
-    valueAxisr0.max = 4;
-    //valueAxisr0.strictMinMax = true;
-    valueAxisr0.tooltip.disabled = true;
-    valueAxisr0.renderer.minWidth = 35;
-
-    //valueAxisr0.renderer.grid.template.disabled = true;
-    //valueAxisr0.renderer.labels.template.disabled = true;
-    let rangeLine = valueAxisr0.axisRanges.create();
-    rangeLine.value = 1;
-    rangeLine.grid.stroke = am4core.color('#FF4444');
-    rangeLine.grid.strokeOpacity = 0.5;
-/*
-let rangeLine3 = valueAxisr0.axisRanges.create();
-    rangeLine3.value = 3;
-    rangeLine3.label.text = "{value}";
-*/
-    let seriesr0 = chartr0.series.push(new am4charts.LineSeries());
-    seriesr0.dataFields.dateX = "date";
-    seriesr0.dataFields.valueY = "value";
-    seriesr0.baseAxis = dateAxisr0;
-    seriesr0.fillOpacity = 0.3;
-    seriesr0.tooltipText = "{valueY.value}";
-    // Don't include tooltip in saved images
-    seriesr0.tooltip.exportable = false;
-    
-    // Red color for high Re
-    let rangeRed = valueAxisr0.createSeriesRange(seriesr0);
-    rangeRed.value = 1.2;
-    rangeRed.endValue = 10;
-    rangeRed.contents.stroke = am4core.color('#ff4444');
-    rangeRed.contents.fill = am4core.color('#FF4444');
-    rangeRed.contents.fillOpacity = 0.3;
-
-    // Orange color for Medium Re
-    let rangeOrange = valueAxisr0.createSeriesRange(seriesr0);
-    rangeOrange.value = 0.8;
-    rangeOrange.endValue = 1.2;
-    rangeOrange.contents.stroke = am4core.color('#FFFF44');
-    rangeOrange.contents.fill = am4core.color('#FFFF44');
-    rangeOrange.contents.fillOpacity = 0.3;
-    
-    // Green color for Medium Re
-    let rangeGreen = valueAxisr0.createSeriesRange(seriesr0);
-    rangeGreen.value = 0.02;
-    rangeGreen.endValue = 0.8;
-    rangeGreen.contents.stroke = am4core.color('#44FF44');
-    rangeGreen.contents.fill = am4core.color('#44FF44');
-    rangeGreen.contents.fillOpacity = 0.3;
-    
-    // Neutral color
-    let rangeNeutral = valueAxisr0.createSeriesRange(seriesr0);
-    rangeNeutral.value = 0;
-    rangeNeutral.endValue = 0.02;
-    rangeNeutral.contents.stroke = am4core.color('#CCCCFF');
-    rangeNeutral.contents.fill = am4core.color('#CCCCFF');
-    rangeNeutral.contents.fillOpacity = 0.3;
-    
 
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     chart.paddingRight = 20;
     chart.cursor = new am4charts.XYCursor();
-    chart.scrollbarX = new am4core.Scrollbar();
-    chartr0.scrollbarX = chart.scrollbarX;
-    chart.scrollbarX.parent = chart.bottomAxesContainer;
-    chart.scrollbarX.background.fill = am4core.color('#3B4E60');
-    chart.scrollbarX.background.fillOpacity = 1;
-    chart.scrollbarX.thumb.background.fill = am4core.color('#CCCCFF');
-    chart.scrollbarX.thumb.background.fillOpacity = 1;
-    chart.scrollbarX.start = 0.10;
-    chart.scrollbarX.end = 0.9;
+    let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+
+    // Add scrollbar chart for R
+    let r0scrollbar = new am4charts.XYChartScrollbar();    
+    r0scrollbar.scrollbarChart.xAxes.push(new am4charts.DateAxis());
+    r0scrollbar.scrollbarChart.yAxes.push(new am4charts.ValueAxis());
+    let seriesr0 = r0scrollbar.scrollbarChart.series.push(new am4charts.LineSeries());
+    seriesr0.dataFields.dateX = "date";
+    seriesr0.dataFields.valueY = "value";
+    seriesr0.tooltipText = "{valueY.value}";
+
+    //let scrollbarSeries = r0scrollbar.scrollbarChart.series.getIndex(0);
+    seriesr0.fillOpacity = 0.5;
+    seriesr0.fill = am4core.color('#FFFFFF');
+    seriesr0.strokeOpacity = 0.5;
+    seriesr0.stroke = am4core.color('#5684d0');
+    seriesr0.tooltipText = "{valueY.value}";
+
+    r0scrollbar.scrollbarChart.plotContainer.filters.clear();
+    r0scrollbar.background.fillOpacity = 0;
+    r0scrollbar.thumb.background.fill = am4core.color('#ffffff');
+    r0scrollbar.thumb.background.fillOpacity = 0;
+    r0scrollbar.unselectedOverlay.fill = am4core.color('#000000');
+    r0scrollbar.unselectedOverlay.fillOpacity = 0.4;
+
+    let scrollAxis = r0scrollbar.scrollbarChart.yAxes.getIndex(0);
+    scrollAxis.min = 0;
+    scrollAxis.max = 4;
+
+    // Red color for high Re
+    let rangeRed2 = scrollAxis.createSeriesRange(seriesr0);
+    rangeRed2.value = 1.2;
+    rangeRed2.endValue = 10;
+    rangeRed2.contents.stroke = am4core.color('#ff4444');
+    rangeRed2.contents.fill = am4core.color('#FF4444');
+    rangeRed2.contents.fillOpacity = 0.3;
+    // Orange color for Medium Re
+    let rangeOrange2 = scrollAxis.createSeriesRange(seriesr0);
+    rangeOrange2.value = 0.8;
+    rangeOrange2.endValue = 1.2;
+    rangeOrange2.contents.stroke = am4core.color('#FFFF44');
+    rangeOrange2.contents.fill = am4core.color('#FFFF44');
+    rangeOrange2.contents.fillOpacity = 0.3;
+    // Green color for Medium Re
+    let rangeGreen2 = scrollAxis.createSeriesRange(seriesr0);
+    rangeGreen2.value = 0.02;
+    rangeGreen2.endValue = 0.8;
+    rangeGreen2.contents.stroke = am4core.color('#44FF44');
+    rangeGreen2.contents.fill = am4core.color('#44FF44');
+    rangeGreen2.contents.fillOpacity = 0.3;
+    // Show a line for R = 1
+    let rangeLine2 = scrollAxis.axisRanges.create();
+    rangeLine2.value = 1;
+    rangeLine2.grid.stroke = am4core.color('#FF4444');
+    rangeLine2.grid.strokeOpacity = 0.5;
+
+    chart.scrollbarX = r0scrollbar;
+    chart.scrollbarX.parent = chart.bottomAxesContainer;  
+    //chart.scrollbarX.start = 0.15;
+    //chart.scrollbarX.end = 0.9;
     chart.scrollbarX.startGrip.background.fill = am4core.color('#EEEEFF');
     chart.scrollbarX.startGrip.background.fillOpacity = 1;
     chart.scrollbarX.endGrip.background.fill = am4core.color('#EEEEFF');
     chart.scrollbarX.endGrip.background.fillOpacity = 1;
-    chart.scrollbarX.minHeight = 10;
+    chart.scrollbarX.minHeight = 150;
     chart.colors.list = [
       am4core.color("#5684d0"),
       am4core.color("#5684d0"),
+      am4core.color('#5684d0'),
       am4core.color("#dd3333"),
       am4core.color("#dd3333"),
       am4core.color("#bbbbee"),
@@ -329,7 +306,7 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     chart.exporting.formatOptions.getKey("pdf").scale = 2;
     this.chart = chart;
 
-    let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    
     dateAxis.renderer.grid.template.location = 0;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
@@ -354,6 +331,15 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
     series2.dataFields.valueY = "value";
     series2.strokeWidth = 2;
     series2.strokeOpacity = 0.7;
+
+    let series2range = chart.series.push(new am4charts.LineSeries());
+    series2range.dataFields.dateX = "date";
+    series2range.dataFields.openValueY = "minvalue";
+    series2range.dataFields.valueY = "maxvalue";
+    series2range.sequencedInterpolation = true;
+    series2range.fillOpacity = 0.3;
+    series2range.strokeOpacity = 0;
+    series2range.tensionX = 0.8;
 
     let series3 = chart.series.push(new am4charts.LineSeries());
     series3.dataFields.dateX = "date";
@@ -396,6 +382,11 @@ let rangeLine3 = valueAxisr0.axisRanges.create();
       .get('./data/world-' + id + '-c.json')
       .then(response => {
           series2.data = response.data;
+        })
+    axios
+      .get('./data/world-' + id + '-c-range.json')
+      .then(response => {
+          series2range.data = response.data;
         })
     axios
       .get('./data/world-' + id + '-m.json')
@@ -735,6 +726,9 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
+a {
+  color: #78b8f9;
+}
 .worldmap {
   width: 100%;
   height: 500px;
@@ -761,16 +755,7 @@ li {
 .countrygraph {
   padding-top: 10px;
   width: 100%;
-  height: 350px;
-  border-style: none;
-  border-width: 1px;
-  border-color: #cccccc;
-  background-color: #233648;
-}
-.countryr0graph {
-  padding-top: 10px;
-  width: 100%;
-  height: 200px;
+  height: 600px;
   border-style: none;
   border-width: 1px;
   border-color: #cccccc;
@@ -815,7 +800,7 @@ li {
   border-style: dotted;
   border-color:rgba(255,0,0,0.6);
   border-width: 1px;
-  background-color: rgba(255,0,0,0.2);
+  background-color: rgba(255,68,68,0.3);
   padding: 0.4em;
 }
 </style>
