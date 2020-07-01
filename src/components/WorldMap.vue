@@ -63,7 +63,7 @@
           <p class="red">Predicting the future is hard, and depends on a lot of factors that evolve over time. So take these calculations and forecasts with lots of grains of salt.</p>
           <p>These graphs and some of the numbers on them are based on a model. All models are just approximations of real life, are based on a set of assumptions, and have their limits.</p>
           <p>The level of testing differs per country and also evolves over time. Countries differ in how they count cases. This makes it difficult to compare numbers directly.</p>
-          <p>Calculated values are based on a SEIR model that uses data from <em><a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University</a></em> to estimate R<sub>e</sub> and other values.</p>
+          <p>Calculated values are based on a <a href="https://github.com/tbuytaer/seird">SEIR model</a> that uses data from <em><a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University</a></em> to estimate R<sub>e</sub> and other values.</p>
           <p><span>One of the assumptions of this model is that all new infections are caused by people inside this state. If most infections come from abroad, this will cause a (fictitious) spike in Re values.</span></p>
         </div>
       </div>
@@ -244,6 +244,7 @@ export default {
     r0scrollbar.background.fillOpacity = 0;
     r0scrollbar.thumb.background.fill = am4core.color('#ffffff');
     r0scrollbar.thumb.background.fillOpacity = 0;
+    r0scrollbar.thumb.background.strokeOpacity = 0;
     r0scrollbar.unselectedOverlay.fill = am4core.color('#000000');
     r0scrollbar.unselectedOverlay.fillOpacity = 0.4;
 
@@ -252,31 +253,36 @@ export default {
     scrollAxis.max = 4;
 
     // Red color for high Re
-    let rangeRed2 = scrollAxis.createSeriesRange(seriesr0);
-    rangeRed2.value = 1.2;
-    rangeRed2.endValue = 10;
-    rangeRed2.contents.stroke = am4core.color('#ff4444');
-    rangeRed2.contents.fill = am4core.color('#FF4444');
-    rangeRed2.contents.fillOpacity = 0.3;
+    let rangeRed = scrollAxis.createSeriesRange(seriesr0);
+    rangeRed.value = 1.2;
+    rangeRed.endValue = 10;
+    rangeRed.contents.stroke = am4core.color('#ff4444');
+    rangeRed.contents.fill = am4core.color('#FF4444');
+    rangeRed.contents.fillOpacity = 0.3;
     // Orange color for Medium Re
-    let rangeOrange2 = scrollAxis.createSeriesRange(seriesr0);
-    rangeOrange2.value = 0.8;
-    rangeOrange2.endValue = 1.2;
-    rangeOrange2.contents.stroke = am4core.color('#FFFF44');
-    rangeOrange2.contents.fill = am4core.color('#FFFF44');
-    rangeOrange2.contents.fillOpacity = 0.3;
+    let rangeOrange = scrollAxis.createSeriesRange(seriesr0);
+    rangeOrange.value = 0.8;
+    rangeOrange.endValue = 1.2;
+    rangeOrange.contents.stroke = am4core.color('#FFFF44');
+    rangeOrange.contents.fill = am4core.color('#FFFF44');
+    rangeOrange.contents.fillOpacity = 0.3;
     // Green color for Medium Re
-    let rangeGreen2 = scrollAxis.createSeriesRange(seriesr0);
-    rangeGreen2.value = 0.02;
-    rangeGreen2.endValue = 0.8;
-    rangeGreen2.contents.stroke = am4core.color('#44FF44');
-    rangeGreen2.contents.fill = am4core.color('#44FF44');
-    rangeGreen2.contents.fillOpacity = 0.3;
+    let rangeGreen = scrollAxis.createSeriesRange(seriesr0);
+    rangeGreen.value = 0.02;
+    rangeGreen.endValue = 0.8;
+    rangeGreen.contents.stroke = am4core.color('#44FF44');
+    rangeGreen.contents.fill = am4core.color('#44FF44');
+    rangeGreen.contents.fillOpacity = 0.3;
     // Show a line for R = 1
-    let rangeLine2 = scrollAxis.axisRanges.create();
-    rangeLine2.value = 1;
-    rangeLine2.grid.stroke = am4core.color('#FF4444');
-    rangeLine2.grid.strokeOpacity = 0.5;
+    let rangeLine = scrollAxis.axisRanges.create();
+    rangeLine.value = 1;
+    rangeLine.grid.stroke = am4core.color('#FF4444');
+    rangeLine.grid.strokeOpacity = 0.7;
+
+    let rangeLine3 = scrollAxis.axisRanges.create();
+    rangeLine3.value = 3;
+    rangeLine3.grid.stroke = am4core.color('#ffffff');
+    rangeLine3.grid.strokeOpacity = 0.1;
 
     chart.scrollbarX = r0scrollbar;
     chart.scrollbarX.parent = chart.bottomAxesContainer;  
